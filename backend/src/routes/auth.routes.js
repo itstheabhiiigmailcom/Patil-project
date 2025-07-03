@@ -7,10 +7,12 @@ async function authRoutes(fastify) {
       body: {
         type: 'object',
         required: ['name', 'email', 'password'],
+        additionalProperties: false,
         properties: {
           name: { type: 'string' },
           email: { type: 'string', format: 'email' },
           password: { type: 'string', minLength: 6 },
+          role: { type: 'string', enum: ['user', 'advertiser', 'admin'] },
         },
       },
     },
@@ -34,6 +36,12 @@ async function authRoutes(fastify) {
   fastify.post('/auth/refresh', authController.refresh);
 
   fastify.post('/auth/logout', authController.logout);
+
+  fastify.get(
+    '/auth/me',
+    { preHandler: [fastify.authenticate] },
+    authController.getCurrentUser
+  );
 }
 
 module.exports = fp(authRoutes);

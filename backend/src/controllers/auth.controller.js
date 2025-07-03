@@ -26,7 +26,7 @@ function setAuthCookies(reply, accessToken, refreshToken) {
       httpOnly: true,
       sameSite: 'lax',
       secure: env.NODE_ENV === 'production',
-      path: '/auth',
+      path: 'api/v1/auth',
       maxAge: refreshMaxAge,
     });
 }
@@ -34,20 +34,27 @@ function setAuthCookies(reply, accessToken, refreshToken) {
 /* ───────────────── register ───────────────── */
 module.exports.register = async function register(request, reply) {
   try {
-    const { name, email, password } = request.body;
+    const { name, email, password, role = 'user' } = request.body;
 
     const existing = await User.findOne({ email });
     if (existing) return reply.badRequest('Email already registered');
+    if (!['user', 'advertiser', 'admin'].includes(role))
+      return reply.badRequest('Invalid role');
 
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, email, password, role });
 
-    const accessToken = await reply.jwtSign({ sub: user._id });
+    const accessToken = await reply.jwtSign({ sub: user._id, role: user.role });
     const refreshToken = await generateRefreshToken(user._id, reply);
 
     setAuthCookies(reply, accessToken, refreshToken);
 
     reply.code(201).send({
-      user: { id: user._id, name: user.name, email: user.email },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     request.log.error(err);
@@ -66,13 +73,18 @@ module.exports.login = async function login(request, reply) {
     const isMatch = await user.isPasswordMatch(password);
     if (!isMatch) return reply.unauthorized('Invalid credentials');
 
-    const accessToken = await reply.jwtSign({ sub: user._id });
+    const accessToken = await reply.jwtSign({ sub: user._id, role: user.role });
     const refreshToken = await generateRefreshToken(user._id, reply);
 
     setAuthCookies(reply, accessToken, refreshToken);
 
     reply.send({
-      user: { id: user._id, name: user.name, email: user.email },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     request.log.error(err);
@@ -106,7 +118,10 @@ module.exports.refresh = async function refresh(request, reply) {
     if (!stored) return reply.unauthorized('Refresh token revoked');
 
     // 4️⃣  issue new access token, reuse refresh token
-    const accessToken = await reply.jwtSign({ sub: decoded.sub });
+    const accessToken = await reply.jwtSign({
+      sub: decoded.sub,
+      role: decoded.role,
+    });
     setAuthCookies(reply, accessToken, refreshToken);
 
     return reply.send({ accessToken });
@@ -121,13 +136,21 @@ module.exports.logout = async function logout(request, reply) {
   try {
     const refreshToken =
       request.body?.refreshToken || request.cookies.refreshToken;
-
     if (refreshToken) await revokeRefreshToken(refreshToken);
 
     reply
       .clearCookie('accessToken', { path: '/' })
-      .clearCookie('refreshToken', { path: '/auth' })
+      .clearCookie('refreshToken', { path: '/api/v1/auth' })
       .send({ message: 'Logged out' });
+  } catch (err) {
+    request.log.error(err);
+    reply.internalServerError();
+  }
+};
+
+module.exports.getCurrentUser = async function (request, reply) {
+  try {
+    reply.send({ user: request.userData });
   } catch (err) {
     request.log.error(err);
     reply.internalServerError();
