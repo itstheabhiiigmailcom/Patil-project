@@ -8,6 +8,11 @@ import Unauthorized from './pages/Unauthorized';
 import ProtectedRoute from './components/ProtectedRoute';
 import GuestRoute from './components/GuestRoute';
 import NotFoundPage from './pages/NotFound';
+import UploadAd from './pages/upload';
+import WatchAd from './pages/WatchAdd';
+import AdvertiserDashboard from './pages/AdvertiserDashboard';
+import History from './pages/Histry';
+import ContactForm from './components/Contact';
 
 /* empty stubs – replace later */
 const Empty = () => <div />;
@@ -46,11 +51,22 @@ export default function App() {
         }
       >
         <Route index element={<Empty />} /> {/* /dashboard */}
-        <Route path="upload" element={<Empty />} />
+        <Route path="upload" element={<UploadAd />} />
         <Route path="stats" element={<Empty />} />
-        <Route path="my-ads" element={<Empty />} />
-        <Route path="watch" element={<Empty />} />
+        <Route path="my-ads" element={<AdvertiserDashboard />} />
+        <Route path="watch" element={
+          <ProtectedRoute>
+            <WatchAd  />
+          </ProtectedRoute>
+        } />
+        <Route path="history" element={
+          <ProtectedRoute>
+            <History />
+          </ProtectedRoute>
+        } />
+        {/* Add more dashboard routes as needed */}
         <Route path="account" element={<Empty />} />
+        <Route path="contact" element={<ContactForm />} />
       </Route>
 
       {/* -------- FALLBACKS -------- */}

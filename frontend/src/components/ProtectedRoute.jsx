@@ -35,14 +35,15 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   }
 
   /* 3️⃣  Role guard */
-  if (
-    allowedRoles &&
-    (Array.isArray(allowedRoles)
-      ? !allowedRoles.includes(user?.user.role)
-      : user?.user.role !== allowedRoles)
-  ) {
-    return <Navigate to="/unauthorized" replace />;
-  }
+if (
+  allowedRoles &&
+  (Array.isArray(allowedRoles)
+    ? !allowedRoles.includes(user.role)
+    : user.role !== allowedRoles)
+) {
+  return <Navigate to="/unauthorized" replace />;
+}
+
 
   /* 4️⃣  All good */
   return children;

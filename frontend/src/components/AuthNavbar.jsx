@@ -2,11 +2,11 @@ import { useSelector } from 'react-redux';
 import { UserCircle } from 'lucide-react';
 
 export default function AuthNavbar() {
-  const { user } = useSelector((s) => s.auth.user);
+  const user = useSelector((s) => s.auth.user); // ✅ Correct: user is already the object
 
   return (
     <header className="flex h-16 items-center justify-between bg-[#e7e6e1] px-6 text-gray-900 shadow-lg">
-      {/* Hi, Name on the left - now with better styling */}
+      {/* Hi, Name on the left */}
       <span className="text-lg font-semibold text-indigo-600">
         Hi,{' '}
         <span className="font-bold text-indigo-800">
