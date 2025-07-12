@@ -122,4 +122,54 @@ async function getAdHistoryForUserHandler(req, reply) {
 
 
 
-module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler};
+async function updateUserProfile(request, reply) {
+  try {
+    const userId = request.user?.sub; // ✅ Use sub from JWT
+    if (!userId) {
+      return reply.unauthorized('User not authenticated');
+    }
+
+    const { interests, time } = request.body;
+
+    const user = await User.findById(userId);
+    if (!user) return reply.notFound('User not found');
+
+    if (user.role !== 'user') {
+      return reply.forbidden('Only regular users can edit their profile');
+    }
+
+    // ✅ Validation
+    const validInterests = [
+      'sports', 'music', 'movies', 'travel', 'gaming',
+      'reading', 'cooking', 'art', 'technology'
+    ];
+    const validTimes = ['morning', 'afternoon', 'evening', 'night'];
+
+    if (interests && !validInterests.includes(interests)) {
+      return reply.badRequest('Invalid interests value');
+    }
+
+    if (time && !validTimes.includes(time)) {
+      return reply.badRequest('Invalid time value');
+    }
+
+    // ✅ Update fields
+    if (interests) user.interests = interests;
+    if (time) user.time = time;
+
+    await user.save();
+
+    reply.send({ message: 'Profile updated successfully', user });
+  } catch (err) {
+    request.log.error(err, '[updateUserProfile] Error');
+    reply.internalServerError('Failed to update profile');
+  }
+}
+
+
+
+
+
+
+
+module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler,updateUserProfile};

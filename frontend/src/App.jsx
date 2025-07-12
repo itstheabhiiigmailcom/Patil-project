@@ -13,6 +13,7 @@ import WatchAd from './pages/WatchAdd';
 import AdvertiserDashboard from './pages/AdvertiserDashboard';
 import History from './pages/Histry';
 import ContactForm from './components/Contact';
+import EditProfile from './components/EditProfile';
 
 /* empty stubs – replace later */
 const Empty = () => <div />;
@@ -51,9 +52,12 @@ export default function App() {
         }
       >
         <Route index element={<Empty />} /> {/* /dashboard */}
-        <Route path="upload" element={<UploadAd />} />
-        <Route path="stats" element={<Empty />} />
-        <Route path="my-ads" element={<AdvertiserDashboard />} />
+        <Route path="upload" element={<ProtectedRoute>
+          <UploadAd />
+        </ProtectedRoute>} />
+        <Route path="my-ads" element={<ProtectedRoute>
+          <AdvertiserDashboard />
+        </ProtectedRoute>} />
         <Route path="watch" element={
           <ProtectedRoute>
             <WatchAd  />
@@ -66,8 +70,13 @@ export default function App() {
         } />
         {/* Add more dashboard routes as needed */}
         <Route path="account" element={<Empty />} />
-        <Route path="contact" element={<ContactForm />} />
+        <Route path="contact" element={<ProtectedRoute>
+          <ContactForm />
+        </ProtectedRoute>} />
       </Route>
+      <Route path='/edit-profile' element={<ProtectedRoute>
+        <EditProfile />
+      </ProtectedRoute>} />
 
       {/* -------- FALLBACKS -------- */}
       <Route path="/unauthorized" element={<Unauthorized />} />

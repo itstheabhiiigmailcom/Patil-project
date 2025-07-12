@@ -25,6 +25,16 @@ const userSchema = new Schema(
     age:{
       type:Number
     },
+    interests: {
+      type:String,
+      enum: ['sports', 'music', 'movies', 'travel', 'gaming', 'reading', 'cooking', 'art', 'technology'], 
+      default:[],
+    },
+    time:{
+      type: String,
+      enum: ['morning', 'afternoon', 'evening', 'night'],
+      default: 'morning',
+    },
     role: {
       type: String,
       enum: ['user', 'advertiser', 'admin'],
