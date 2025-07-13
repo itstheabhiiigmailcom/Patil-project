@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { int } = require('three/tsl');
 
 const userSchema = new Schema(
   {
@@ -20,6 +21,19 @@ const userSchema = new Schema(
       required: true,
       minlength: 6,
       select: false,
+    },
+    age:{
+      type:Number
+    },
+    interests: {
+      type:String,
+      enum: ['sports', 'music', 'movies', 'travel', 'gaming', 'reading', 'cooking', 'art', 'technology'], 
+      default:[],
+    },
+    time:{
+      type: String,
+      enum: ['morning', 'afternoon', 'evening', 'night'],
+      default: 'morning',
     },
     role: {
       type: String,

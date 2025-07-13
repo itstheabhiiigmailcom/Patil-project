@@ -7,7 +7,6 @@ export default function Landing() {
     <main className="font-sans">
       <Hero />
       <About />
-      <Contact />
     </main>
   );
 }

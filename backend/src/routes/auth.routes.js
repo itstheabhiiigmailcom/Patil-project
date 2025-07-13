@@ -1,4 +1,5 @@
 const fp = require('fastify-plugin');
+const { setAgeHandler } = require('../controllers/user.controller');
 const authController = require('../controllers/auth.controller');
 
 async function authRoutes(fastify) {
@@ -31,6 +32,11 @@ async function authRoutes(fastify) {
       },
     },
     handler: authController.login,
+  });
+
+  fastify.put('/auth/set-age', {
+    preHandler: [fastify.authenticate],
+    handler: setAgeHandler,
   });
 
   fastify.post('/auth/refresh', authController.refresh);
