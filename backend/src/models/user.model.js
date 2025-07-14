@@ -39,9 +39,9 @@ const userSchema = new Schema(
       default: [],
     },
     time: {
-      type: String,
+      type: [String],
       enum: ['morning', 'afternoon', 'evening', 'night'],
-      default: 'morning',
+      default: [],
     },
     role: {
       type: String,

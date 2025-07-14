@@ -14,10 +14,10 @@ export default function AuthNavbar() {
       </span>
 
       <div className="flex items-center space-x-4">
-        <h1 className="text-xl font-bold text-indigo-400">AdVision</h1>
+        <h1 className="text-xl font-bold text-indigo-400">Advestore</h1>
         <UserCircle
           className="h-8 w-8 text-indigo-400 hover:cursor-pointer"
-          onClick={() => navigate('/edit-profile')}
+          onClick={() => navigate('/profile')}
         />
       </div>
     </header>

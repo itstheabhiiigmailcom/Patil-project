@@ -14,6 +14,7 @@ import AdvertiserDashboard from './pages/AdvertiserDashboard';
 import History from './pages/Histry';
 import ContactForm from './components/Contact';
 import EditProfile from './components/EditProfile';
+import UserProfile from './components/UserProfile';
 
 /* empty stubs – replace later */
 const Empty = () => <div />;
@@ -76,6 +77,9 @@ export default function App() {
       </Route>
       <Route path='/edit-profile' element={<ProtectedRoute>
         <EditProfile />
+      </ProtectedRoute>} />
+      <Route path='/profile' element={<ProtectedRoute>
+        <UserProfile />
       </ProtectedRoute>} />
 
       {/* -------- FALLBACKS -------- */}

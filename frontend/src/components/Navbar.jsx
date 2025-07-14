@@ -17,7 +17,7 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         {/* Brand */}
         <Link to="/" className="text-2xl font-bold text-indigo-600">
-          AdVision
+          Advestore
         </Link>
 
         {/* Left‑side anchors */}
