@@ -1,6 +1,7 @@
 const fp = require('fastify-plugin');
 const { setAgeHandler } = require('../controllers/user.controller');
 const authController = require('../controllers/auth.controller');
+const oauthController = require('../controllers/oauth.controller');
 
 async function authRoutes(fastify) {
   fastify.post('/auth/register', {
@@ -48,6 +49,11 @@ async function authRoutes(fastify) {
     { preHandler: [fastify.authenticate] },
     authController.getCurrentUser
   );
+
+  // Google OAuth routes
+  fastify.get('/auth/google', oauthController.googleOAuth);
+  
+  fastify.get('/auth/google/callback', oauthController.googleCallback);
 }
 
 module.exports = fp(authRoutes);
