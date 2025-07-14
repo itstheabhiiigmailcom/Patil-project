@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAppDispatch } from '../store';
 import { login } from '../store/authSlice';
 import { useSelector } from 'react-redux';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 
 export default function SignIn() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -58,12 +59,25 @@ export default function SignIn() {
           </button>
         </form>
 
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-2 text-gray-500">Or</span>
+          </div>
+        </div>
+
+        {/* Google Sign In Button */}
+        <GoogleSignInButton text="Sign in with Google" />
+
         {error && <p className="mt-4 text-center text-red-600">{error}</p>}
 
         <p className="mt-4 text-center text-sm">
-          Don’t have an account?{' '}
+          Don't have an account?{' '}
           <Link to="/signup" className="text-indigo-600 hover:underline">
-            Sign Up
+            Sign Up
           </Link>
         </p>
       </div>
