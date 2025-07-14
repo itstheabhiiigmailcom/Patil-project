@@ -1,6 +1,5 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { int } = require('three/tsl');
 
 const userSchema = new Schema(
   {
