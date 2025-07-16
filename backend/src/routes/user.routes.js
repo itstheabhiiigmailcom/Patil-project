@@ -1,14 +1,16 @@
-async function userRoutes(fastify, options) {
-    const userController = require('../controllers/user.controller');
+const fp = require('fastify-plugin');
+const userController = require('../controllers/user.controller');
 
-    // Update profile route (only for regular users)
-    fastify.put('/edit-profile', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-        return userController.updateUserProfile(request, reply);
-    });
-    fastify.get('/profile', {
-        preHandler: [fastify.authenticate],
-    }, async (request, reply) => {
-        return userController.getUserProfile(request, reply);
-    });
+async function userRoutes(fastify) {
+  fastify.get('/profile', {
+    preHandler: [fastify.authenticate],
+    handler: userController.getUserProfile,
+  });
+
+  fastify.put('/edit-profile', {
+    preHandler: [fastify.authenticate],
+    handler: userController.updateUserProfile,
+  });
 }
-module.exports = userRoutes;
+
+module.exports = fp(userRoutes); // ✅ THIS IS REQUIRED

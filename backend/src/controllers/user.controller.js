@@ -181,7 +181,7 @@ async function getUserProfile(req, reply) {
     const userId = req.user?.sub;
     if (!userId) return reply.unauthorized('User not authenticated');
 
-    const user = await User.findById(userId).select('name email interests time');
+    const user = await User.findById(userId).select('name email interests time credit age');
 
     if (!user) return reply.notFound('User not found');
 
@@ -190,6 +190,8 @@ async function getUserProfile(req, reply) {
       email: user.email,
       interests: user.interests || [],
       time: user.time || [],
+      credit: user.credit || 0,
+      age: user.age || null,
     });
   } catch (err) {
     req.log.error(err, '[getUserProfile] Error');

@@ -2,7 +2,7 @@
 const { sendContactMessage } = require('../controllers/contact.controller');
 
 async function contactRoutes(fastify, options) {
-  fastify.post('/api/v1/api/contact', sendContactMessage);
+  fastify.post('/contact', sendContactMessage);
 }
 
 module.exports = contactRoutes;

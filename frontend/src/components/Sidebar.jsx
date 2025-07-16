@@ -1,30 +1,49 @@
 import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../store';
 import { logout } from '../store/authSlice';
-import { Menu, X } from 'lucide-react'; // for toggle icons
+import { Menu, X } from 'lucide-react';
 
 export default function Sidebar() {
   const user = useSelector((s) => s.auth.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false); // toggle sidebar on mobile
 
-  const items =
-    user?.role === 'advertiser'
-      ? [
-          { path: '/dashboard/upload', label: 'Upload Ad' },
-          { path: '/dashboard/stats', label: 'Statistics' },
-          { path: '/dashboard/my-ads', label: 'Your Ads' },
-          { path: '/dashboard/contact', label: 'Contact' },
-        ]
-      : [
-          { path: '/dashboard/watch', label: 'Watch Ads' },
-          { path: '/dashboard/account', label: 'Account' },
-          { path: '/dashboard/history', label: 'History' },
-          { path: '/dashboard/contact', label: 'Contact' },
-        ];
+  const isOnUserManagePage = location.pathname === '/dashboard/users';
+
+  // Dynamic sidebar items based on role and current path
+  let items = [];
+
+  if (user?.role === 'advertiser') {
+    items = [
+      { path: '/dashboard/upload', label: 'Upload Ad' },
+      { path: '/dashboard/my-ads', label: 'Your Ads' },
+      { path: '/dashboard/wallet', label: 'Wallet'},
+      { path: '/dashboard/contact', label: 'Contact' },
+    ];
+  } else if (user?.role === 'admin') {
+    items = isOnUserManagePage
+    ? [
+      { path: '/dashboard/users/AllUsers', label: 'All Users' },
+      { path: '/dashboard/users/search', label: 'search' },
+      { path: '/dashboard/users/viewers', label: 'Viewers' },
+      { path: '/dashboard/contact', label: 'Contact' },
+    ]
+    : [
+      { path: '/dashboard/users', label: 'Manage Users' },
+      { path: '/dashboard/contact', label: 'Contact' },
+    ];
+  } else {
+    items = [
+      { path: '/dashboard/watch', label: 'Watch Ads' },
+      { path: '/dashboard/wallet', label: 'Wallet'},
+      { path: '/dashboard/history', label: 'History' },
+      { path: '/dashboard/contact', label: 'Contact' },
+    ];
+  }
 
   const handleLogout = async () => {
     await dispatch(logout());
@@ -33,7 +52,7 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Toggle Button - only visible on mobile */}
+      {/* Mobile Toggle Button */}
       <button
         className="md:hidden fixed top-4 left-4 z-50 bg-gray-100 p-2 rounded-md shadow"
         onClick={() => setOpen(!open)}
@@ -61,7 +80,7 @@ export default function Sidebar() {
                       : 'text-gray-700 hover:bg-gray-200'
                   }`
                 }
-                onClick={() => setOpen(false)} // close sidebar on link click
+                onClick={() => setOpen(false)}
                 end
               >
                 {label}
@@ -79,7 +98,7 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Overlay when sidebar is open (for mobile) */}
+      {/* Mobile Overlay */}
       {open && (
         <div
           onClick={() => setOpen(false)}

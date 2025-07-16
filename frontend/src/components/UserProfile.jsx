@@ -29,12 +29,13 @@ export default function UserProfile() {
   return (
     <div className="relative max-w-3xl mx-auto px-4 py-10">
       {/* Back Button */}
-      <button
-        onClick={() => navigate('/dashboard')}
-        className="mb-6 inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-lg shadow-sm transition"
-      >
-        ← Back to Dashboard
-      </button>
+<button
+  onClick={() => navigate('/dashboard')}
+  className="mb-6 px-12 py-5 text-xs uppercase tracking-widest font-medium text-black bg-white rounded-full shadow-[0px_8px_15px_rgba(0,0,0,0.1)] transition-all duration-300 hover:bg-[#23c483] hover:text-white hover:shadow-[0px_15px_20px_rgba(46,229,157,0.4)] transform hover:-translate-y-2 active:translate-y-0 flex items-center gap-2"
+>
+  ← Back to Dashboard
+</button>
+
 
       {/* Profile Card */}
       <div className="bg-white shadow-lg border border-gray-200 rounded-3xl p-8">
