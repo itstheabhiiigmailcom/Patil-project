@@ -1,42 +1,28 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+
+
+/* styles/logout-button.css or inside a <style> block if using styled-components */
+.logout-btn {
+  height: 50px;
+  width: 100%;
+  max-width: 160px;
+  margin-top: 12px;
+  border-radius: 10px;
+  background: #f40909;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: -5px -5px 15px #f07878, 5px 5px 15px #f33d3d, inset 5px 5px 10px #f43333,
+    inset -5px -5px 10px #f60404;
+  font-family: "Damion", cursive;
+  cursor: pointer;
+  border: none;
+  font-size: 16px;
+  color: rgb(161, 161, 161);
+  transition: all 0.5s ease;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+.logout-btn:hover {
+  box-shadow: -5px -5px 15px #e34343, 5px 5px 15px #222, inset 5px 5px 10px #ef0505,
+    inset -5px -5px 10px #f30707;
+  color: #d6d6d6;
 }

@@ -31,43 +31,47 @@ export default function SendMailModal({ user, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
-        <h2 className="text-lg font-semibold mb-4">
-          Send Mail to {user.name}
-        </h2>
+<div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-900/30 via-purple-900/30 to-indigo-900/30 backdrop-blur-sm px-4">
+  <div className="w-full max-w-lg rounded-xl bg-white/70 backdrop-blur-md shadow-xl border border-white/30 p-6 sm:p-8">
+    <h2 className="text-2xl font-semibold text-indigo-700 mb-6 text-center">
+      📧 Send Mail to <span className="font-bold">{user.name}</span>
+    </h2>
 
-        <input
-          type="text"
-          placeholder="Subject"
-          className="w-full p-2 border rounded mb-3"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-        />
+    {/* Subject Input */}
+    <input
+      type="text"
+      placeholder="Subject"
+      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/90 placeholder-gray-500 transition-all mb-4"
+      value={subject}
+      onChange={(e) => setSubject(e.target.value)}
+    />
 
-        <textarea
-          placeholder="Message"
-          className="w-full p-2 border rounded mb-3 h-32"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
+    {/* Message Textarea */}
+    <textarea
+      placeholder="Message"
+      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/90 placeholder-gray-500 transition-all h-32 mb-6 resize-none"
+      value={message}
+      onChange={(e) => setMessage(e.target.value)}
+    />
 
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSend}
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            {loading ? 'Sending...' : 'Send'}
-          </button>
-        </div>
-      </div>
+    {/* Action Buttons */}
+    <div className="flex flex-col sm:flex-row justify-end gap-3">
+      <button
+        onClick={onClose}
+        className="w-full sm:w-auto px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium shadow-sm"
+      >
+        ❌ Cancel
+      </button>
+      <button
+        onClick={handleSend}
+        disabled={loading}
+        className="w-full sm:w-auto px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-md transition"
+      >
+        {loading ? 'Sending...' : '📤 Send'}
+      </button>
     </div>
+  </div>
+</div>
+
   );
 }

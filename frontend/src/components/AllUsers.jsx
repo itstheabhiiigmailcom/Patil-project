@@ -51,7 +51,7 @@ export default function AdminUserList() {
       {/* Back Button at Top Left */}
       <div className="mb-6">
         <button
-          onClick={() => navigate('/dashboard/users')}
+          onClick={() => navigate('/dashboard')}
           className="px-6 py-3 text-xs uppercase tracking-widest font-medium text-black bg-white rounded-full shadow-[0px_8px_15px_rgba(0,0,0,0.1)] transition-all duration-300 hover:bg-[#23c483] hover:text-white hover:shadow-[0px_15px_20px_rgba(46,229,157,0.4)] transform hover:-translate-y-2 active:translate-y-0"
         >
           ← Back to Dashboard
