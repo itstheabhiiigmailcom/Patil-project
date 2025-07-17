@@ -12,41 +12,36 @@ export default function Sidebar() {
   const location = useLocation();
   const [open, setOpen] = useState(false); // toggle sidebar on mobile
 
-  const isOnUserManagePage = location.pathname === '/dashboard/users';
+  // const isOnUserManagePage = location.pathname === '/dashboard/users';
 
   // Dynamic sidebar items based on role and current path
   let items = [];
 
-  if (user?.role === 'advertiser') {
-    items = [
-      { path: '/dashboard', label: 'Home' },
-      { path: '/dashboard/upload', label: 'Upload Ad' },
-      { path: '/dashboard/my-ads', label: 'Your Ads' },
-      { path: '/dashboard/wallet', label: 'Wallet' },
-      { path: '/dashboard/contact', label: 'Contact' },
-    ];
-  } else if (user?.role === 'admin') {
-    items = isOnUserManagePage
-      ? [
-        { path: '/dashboard', label: 'Home' },
-        { path: '/dashboard/users/AllUsers', label: 'All Users' },
-        { path: '/dashboard/users/search', label: 'search' },
-        { path: '/dashboard/users/viewers', label: 'Viewers' },
-        { path: '/dashboard/contact', label: 'Contact' },
-      ]
-      : [
-        { path: '/dashboard/users', label: 'Manage Users' },
-        { path: '/dashboard/contact', label: 'Contact' },
-      ];
-  } else {
-    items = [
-      { path: '/dashboard', label: 'Home' },
-      { path: '/dashboard/watch', label: 'Watch Ads' },
-      { path: '/dashboard/wallet', label: 'Wallet' },
-      { path: '/dashboard/history', label: 'History' },
-      { path: '/dashboard/contact', label: 'Contact' },
-    ];
-  }
+ if (user?.role === 'advertiser') {
+  items = [
+    { path: '/dashboard', label: 'Home' },
+    { path: '/dashboard/upload', label: 'Upload Ad' },
+    { path: '/dashboard/my-ads', label: 'Your Ads' },
+    { path: '/dashboard/wallet', label: 'Wallet' },
+    { path: '/dashboard/contact', label: 'Contact' },
+  ];
+} else if (user?.role === 'admin') {
+  items = [
+    { path: '/dashboard', label: 'Home' },
+    { path: '/dashboard/users/AllUsers', label: 'All Users' },
+    { path: '/dashboard/users/search', label: 'Search by Email' },
+    { path: '/dashboard/contact', label: 'Contact' },
+  ];
+} else {
+  items = [
+    { path: '/dashboard', label: 'Home' },
+    { path: '/dashboard/watch', label: 'Watch Ads' },
+    { path: '/dashboard/wallet', label: 'Wallet' },
+    { path: '/dashboard/history', label: 'History' },
+    { path: '/dashboard/contact', label: 'Contact' },
+  ];
+}
+
 
   const handleLogout = async () => {
     await dispatch(logout());
