@@ -2,6 +2,7 @@ const { models } = require('mongoose');
 const User = require('../models/user.model');
 const AD = require('../models/ad.model');
 const { sendMail } = require('../utils/mailer');
+const AdViewLog = require('../models/AdView.model');
 
 async function getAllUser(req, reply) {
   try {
@@ -115,7 +116,87 @@ async function addCredit(req, reply) {
 
   }
 
+  async function getAllAdsAnalytics(req, reply) {
+  try {
+    // Fetch all ads with _id, description, feedbacks
+    const ads = await AD.find().select('_id description feedbacks');
+
+    const adIds = ads.map(ad => ad._id);
+
+    // 1. Views over time (grouped by date)
+    const viewsOverTime = await AdViewLog.aggregate([
+      { $match: { adId: { $in: adIds } } },
+      {
+        $group: {
+          _id: {
+            date: { $dateToString: { format: '%Y-%m-%d', date: '$viewedAt' } },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { '_id.date': 1 } },
+    ]);
+
+    // 2. Most viewed ads
+    const mostViewedRaw = await AdViewLog.aggregate([
+      { $match: { adId: { $in: adIds } } },
+      {
+        $group: {
+          _id: '$adId',
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+      { $limit: 5 },
+    ]);
+
+    // Map adId to description for lookup
+    const adTitleMap = {};
+    ads.forEach(ad => {
+      adTitleMap[ad._id.toString()] = ad.description;
+    });
+
+    const mostViewed = mostViewedRaw.map(view => ({
+      title: adTitleMap[view._id.toString()] || 'Unknown',
+      count: view.count,
+    }));
+
+    // 3. Feedbacks (like/dislike) from embedded arrays
+    const feedbackCounts = ads.map(ad => {
+      const feedbacks = ad.feedbacks || [];
+      const like = feedbacks.filter(f => f.sentiment === 'like').length;
+      const dislike = feedbacks.filter(f => f.sentiment === 'dislike').length;
+      return {
+        title: ad.description,
+        like,
+        dislike,
+      };
+    });
+
+    const mostLiked = [...feedbackCounts]
+      .sort((a, b) => b.like - a.like)
+      .slice(0, 5)
+      .map(f => ({ title: f.title, count: f.like }));
+
+    const mostDisliked = [...feedbackCounts]
+      .sort((a, b) => b.dislike - a.dislike)
+      .slice(0, 5)
+      .map(f => ({ title: f.title, count: f.dislike }));
+
+    // Send analytics
+    reply.send({
+      viewsOverTime,
+      mostViewed,
+      mostLiked,
+      mostDisliked,
+    });
+  } catch (err) {
+    req.log.error(err);
+    reply.internalServerError('Failed to load admin analytics');
+  }
+}
 
 
 
-module.exports = { getAllUser, getUserBymail, updateUser, deleteUser, banUser, sendMailToUser,addCredit };
+
+module.exports = { getAllUser, getUserBymail, updateUser, deleteUser, banUser, sendMailToUser,addCredit,getAllAdsAnalytics };

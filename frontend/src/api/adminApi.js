@@ -35,3 +35,10 @@ export async function addCredit(userId,amount) {
     withCredentials: true,
   });
 }
+
+export const fetchAdminAnalytics = async () => {
+  const response = await axios.get(`${import.meta.env.VITE_API_URL}/admin/ads/analytics`, {
+    withCredentials: true, // if using cookies for auth
+  });
+  return response.data;
+};

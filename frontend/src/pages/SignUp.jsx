@@ -108,17 +108,21 @@ export default function SignUp() {
         </form>
 
         {/* Divider */}
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+        {form.role === 'user' && (
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white px-2 text-gray-500">Or</span>
+            </div>
           </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-2 text-gray-500">Or</span>
-          </div>
-        </div>
+        )}
 
-        {/* Google Sign In Button */}
-        <GoogleSignInButton text="Sign up with Google" />
+        {/* Google Sign In Button - Only show for users, not advertisers */}
+        {form.role === 'user' && (
+          <GoogleSignInButton text="Sign up with Google" />
+        )}
 
         {/* Error message */}
         {error && <p className="mt-4 text-center text-red-600">{error}</p>}

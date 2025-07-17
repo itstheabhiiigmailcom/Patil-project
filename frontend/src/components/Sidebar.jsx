@@ -19,27 +19,30 @@ export default function Sidebar() {
 
   if (user?.role === 'advertiser') {
     items = [
+      { path: '/dashboard', label: 'Home' },
       { path: '/dashboard/upload', label: 'Upload Ad' },
       { path: '/dashboard/my-ads', label: 'Your Ads' },
-      { path: '/dashboard/wallet', label: 'Wallet'},
+      { path: '/dashboard/wallet', label: 'Wallet' },
       { path: '/dashboard/contact', label: 'Contact' },
     ];
   } else if (user?.role === 'admin') {
     items = isOnUserManagePage
-    ? [
-      { path: '/dashboard/users/AllUsers', label: 'All Users' },
-      { path: '/dashboard/users/search', label: 'search' },
-      { path: '/dashboard/users/viewers', label: 'Viewers' },
-      { path: '/dashboard/contact', label: 'Contact' },
-    ]
-    : [
-      { path: '/dashboard/users', label: 'Manage Users' },
-      { path: '/dashboard/contact', label: 'Contact' },
-    ];
+      ? [
+        { path: '/dashboard', label: 'Home' },
+        { path: '/dashboard/users/AllUsers', label: 'All Users' },
+        { path: '/dashboard/users/search', label: 'search' },
+        { path: '/dashboard/users/viewers', label: 'Viewers' },
+        { path: '/dashboard/contact', label: 'Contact' },
+      ]
+      : [
+        { path: '/dashboard/users', label: 'Manage Users' },
+        { path: '/dashboard/contact', label: 'Contact' },
+      ];
   } else {
     items = [
+      { path: '/dashboard', label: 'Home' },
       { path: '/dashboard/watch', label: 'Watch Ads' },
-      { path: '/dashboard/wallet', label: 'Wallet'},
+      { path: '/dashboard/wallet', label: 'Wallet' },
       { path: '/dashboard/history', label: 'History' },
       { path: '/dashboard/contact', label: 'Contact' },
     ];
@@ -74,10 +77,9 @@ export default function Sidebar() {
                 key={path}
                 to={path}
                 className={({ isActive }) =>
-                  `block rounded px-3 py-2 text-sm font-medium ${
-                    isActive
-                      ? 'bg-indigo-100 text-indigo-700'
-                      : 'text-gray-700 hover:bg-gray-200'
+                  `block rounded px-3 py-2 text-sm font-medium ${isActive
+                    ? 'bg-indigo-100 text-indigo-700'
+                    : 'text-gray-700 hover:bg-gray-200'
                   }`
                 }
                 onClick={() => setOpen(false)}

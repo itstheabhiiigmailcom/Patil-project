@@ -4,6 +4,7 @@ import { Mail, User, Calendar, Clock, ShieldCheck, Star, Info } from 'lucide-rea
 import EditUserModal from './AdmineEdit';
 import SendMailForm from './AdminMail';
 import AddCreditForm from './AddCredit';
+import { useNavigate } from 'react-router-dom';
 
 export default function UserSearch() {
   const [email, setEmail] = useState('');
@@ -14,6 +15,8 @@ export default function UserSearch() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showMailModal, setShowMailModal] = useState(false);
   const [showAddCreditModal, setShowAddCreditModal] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleSearch = async () => {
     setLoading(true);
@@ -60,7 +63,17 @@ export default function UserSearch() {
   };
 
   return (
+
     <div className="max-w-4xl mx-auto p-4">
+      <div className="mb-6">
+        <button
+          onClick={() => navigate('/dashboard/users')}
+          className="px-6 py-3 text-xs uppercase tracking-widest font-medium text-black bg-white rounded-full shadow-[0px_8px_15px_rgba(0,0,0,0.1)] transition-all duration-300 hover:bg-[#23c483] hover:text-white hover:shadow-[0px_15px_20px_rgba(46,229,157,0.4)] transform hover:-translate-y-2 active:translate-y-0"
+        >
+          ← Back to Dashboard
+        </button>
+      </div>
+
       <div className="flex items-center gap-2 mb-4">
         <input
           type="text"

@@ -59,6 +59,9 @@ export default function App() {
         <Route path="upload" element={<ProtectedRoute>
           <UploadAd />
         </ProtectedRoute>} />
+        <Route path="wallet" element={<ProtectedRoute>
+          <UserWallet />
+        </ProtectedRoute>} />
         <Route path="my-ads" element={<ProtectedRoute>
           <AdvertiserDashboard />
         </ProtectedRoute>} />
@@ -77,6 +80,7 @@ export default function App() {
         <Route path="contact" element={<ProtectedRoute>
           <ContactForm />
         </ProtectedRoute>} />
+        
       </Route>
       <Route path='/edit-profile' element={<ProtectedRoute>
         <EditProfile />
@@ -84,9 +88,7 @@ export default function App() {
       <Route path='/profile' element={<ProtectedRoute>
         <UserProfile />
       </ProtectedRoute>} />
-      <Route path='/dashboard/wallet' element={<ProtectedRoute>
-        <UserWallet />
-      </ProtectedRoute>} />
+
       <Route path='/dashboard/users/search' element={<ProtectedRoute>
         <UserSearch />
       </ProtectedRoute>} />

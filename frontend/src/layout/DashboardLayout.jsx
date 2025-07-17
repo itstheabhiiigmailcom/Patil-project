@@ -3,6 +3,7 @@ import AuthNavbar from '../components/AuthNavbar';
 import Sidebar from '../components/Sidebar';
 import { useSelector } from 'react-redux';
 import AdvertiserAnalytics from '../components/AdvertiserAnalytics';
+import AdminAnalytics from '../components/AdminAnalytics';
 
 export default function DashboardLayout() {
   const user = useSelector((s) => s.auth.user);
@@ -20,9 +21,15 @@ export default function DashboardLayout() {
         <AuthNavbar />
 
         <main className="flex-1 overflow-y-auto bg-gray-50 p-8">
-          {/* Show analytics on root dashboard only for advertiser */}
-          {isRootDashboard && user?.role === 'advertiser' ? (
-            <AdvertiserAnalytics />
+          {/* Show analytics on root dashboard only */}
+          {isRootDashboard ? (
+            user?.role === 'advertiser' ? (
+              <AdvertiserAnalytics />
+            ) : user?.role === 'admin' ? (
+              <AdminAnalytics />
+            ) : (
+              <div className="text-gray-600 text-center">No dashboard content available for your role.</div>
+            )
           ) : (
             <Outlet />
           )}

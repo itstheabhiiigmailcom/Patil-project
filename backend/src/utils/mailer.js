@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 
 async function sendMail({ to, subject, html }) {
   const mailOptions = {
-    from: `"Admin Advestore" <${process.env.EMAIL_USER}>`,
+    from: `"Admin Advestore(no-reply)" <${process.env.EMAIL_USER}>`,
     to,
     subject,
     html,

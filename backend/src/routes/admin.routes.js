@@ -1,4 +1,4 @@
-const { getAllUser, getUserBymail,updateUser,deleteUser,banUser,sendMailToUser,addCredit } = require('../controllers/admin.controller');
+const { getAllUser, getUserBymail,updateUser,deleteUser,banUser,sendMailToUser,addCredit,getAllAdsAnalytics } = require('../controllers/admin.controller');
 const fp = require('fastify-plugin');
 async function adminRoutes(fastify) {
     fastify.get('/admin/users', getAllUser);
@@ -8,6 +8,7 @@ async function adminRoutes(fastify) {
     fastify.put('/admin/users/:id/ban', banUser);
     fastify.post('/admin/mail', sendMailToUser);
     fastify.post('/admin/credit', addCredit);
+    fastify.get('/admin/ads/analytics', getAllAdsAnalytics);
 }
 
 module.exports = fp(adminRoutes);

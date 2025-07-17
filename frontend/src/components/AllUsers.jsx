@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAllUsers } from '../api/adminApi';
-import EditUserModal from './AdmineEdit'; 
+import EditUserModal from './AdmineEdit';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminUserList() {
   const [users, setUsers] = useState([]);
@@ -9,6 +10,8 @@ export default function AdminUserList() {
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
+
+  const navigate = useNavigate();
 
   const fetchUsers = async () => {
     try {
@@ -44,23 +47,35 @@ export default function AdminUserList() {
   if (error) return <div className="text-center text-red-500">{error}</div>;
 
   return (
-    <div className="p-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {users.map((user) => (
-        <div
-          key={user._id}
-          className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
+    <div className="p-6">
+      {/* Back Button at Top Left */}
+      <div className="mb-6">
+        <button
+          onClick={() => navigate('/dashboard/users')}
+          className="px-6 py-3 text-xs uppercase tracking-widest font-medium text-black bg-white rounded-full shadow-[0px_8px_15px_rgba(0,0,0,0.1)] transition-all duration-300 hover:bg-[#23c483] hover:text-white hover:shadow-[0px_15px_20px_rgba(46,229,157,0.4)] transform hover:-translate-y-2 active:translate-y-0"
         >
-          <h2 className="text-lg font-semibold">{user.name}</h2>
-          <p className="text-sm text-gray-600">{user.email}</p>
-          <p className="text-sm text-gray-500 capitalize">Role: {user.role}</p>
-          <button
-            onClick={() => handleManageUser(user)}
-            className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          ← Back to Dashboard
+        </button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {users.map((user) => (
+          <div
+            key={user._id}
+            className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
           >
-            Manage User
-          </button>
-        </div>
-      ))}
+            <h2 className="text-lg font-semibold">{user.name}</h2>
+            <p className="text-sm text-gray-600">{user.email}</p>
+            <p className="text-sm text-gray-500 capitalize">Role: {user.role}</p>
+            <button
+              onClick={() => handleManageUser(user)}
+              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              Manage User
+            </button>
+          </div>
+        ))}
+      </div>
 
       {showModal && selectedUser && (
         <EditUserModal
