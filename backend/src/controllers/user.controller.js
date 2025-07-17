@@ -138,31 +138,64 @@ async function updateUserProfile(request, reply) {
       return reply.forbidden('Only regular users can edit their profile');
     }
 
-    // ✅ Validation
+    // ✅ Allowed values
     const validInterests = [
       'sports', 'music', 'movies', 'travel', 'gaming',
       'reading', 'cooking', 'art', 'technology'
     ];
     const validTimes = ['morning', 'afternoon', 'evening', 'night'];
 
-    if (interests && !validInterests.includes(interests)) {
-      return reply.badRequest('Invalid interests value');
+    // ✅ Validate interests: must be array & valid values
+    if (
+      interests &&
+      (!Array.isArray(interests) || !interests.every((i) => validInterests.includes(i)))
+    ) {
+      return reply.badRequest('Invalid interests value. Must be an array of valid strings.');
     }
 
-    if (time && !validTimes.includes(time)) {
-      return reply.badRequest('Invalid time value');
+    // ✅ Validate time: must be array & valid values
+    if (
+      time &&
+      (!Array.isArray(time) || !time.every((t) => validTimes.includes(t)))
+    ) {
+      return reply.badRequest('Invalid time value. Must be an array of valid strings.');
     }
 
-    // ✅ Update fields
+    // ✅ Save to user
     if (interests) user.interests = interests;
     if (time) user.time = time;
 
     await user.save();
 
-    reply.send({ message: 'Profile updated successfully', user });
+    return reply.send({ message: 'Profile updated successfully', user });
   } catch (err) {
     request.log.error(err, '[updateUserProfile] Error');
-    reply.internalServerError('Failed to update profile');
+    return reply.internalServerError('Failed to update profile');
+  }
+}
+
+// controllers/user.controller.js
+// controllers/user.controller.js
+async function getUserProfile(req, reply) {
+  try {
+    const userId = req.user?.sub;
+    if (!userId) return reply.unauthorized('User not authenticated');
+
+    const user = await User.findById(userId).select('name email interests time credit age');
+
+    if (!user) return reply.notFound('User not found');
+
+    reply.send({
+      name: user.name,
+      email: user.email,
+      interests: user.interests || [],
+      time: user.time || [],
+      credit: user.credit || 0,
+      age: user.age || null,
+    });
+  } catch (err) {
+    req.log.error(err, '[getUserProfile] Error');
+    reply.internalServerError('Could not fetch profile');
   }
 }
 
@@ -172,4 +205,4 @@ async function updateUserProfile(request, reply) {
 
 
 
-module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler,updateUserProfile};
+module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler,updateUserProfile,getUserProfile};

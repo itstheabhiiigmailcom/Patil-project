@@ -1,34 +1,68 @@
-// src/components/EditProfile.jsx
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import { updateUserProfile } from '../api/editProfileRoute';
+import { fetchUserProfile } from '../api/getProfile';
+import Select from 'react-select';
+
+const interestOptions = [
+  { value: 'sports', label: 'Sports' },
+  { value: 'music', label: 'Music' },
+  { value: 'movies', label: 'Movies' },
+  { value: 'travel', label: 'Travel' },
+  { value: 'gaming', label: 'Gaming' },
+  { value: 'reading', label: 'Reading' },
+  { value: 'cooking', label: 'Cooking' },
+  { value: 'art', label: 'Art' },
+  { value: 'technology', label: 'Technology' },
+];
+
+const timeOptions = [
+  { value: 'morning', label: 'Morning' },
+  { value: 'afternoon', label: 'Afternoon' },
+  { value: 'evening', label: 'Evening' },
+  { value: 'night', label: 'Night' },
+];
 
 const EditProfile = () => {
-  const user = useSelector((state) => state.auth.user);
-  const [form, setForm] = useState({
-    interests: user?.interests || '',
-    time: user?.time || '',
-  });
-
+  const [user, setUser] = useState(null);
+  const [form, setForm] = useState({ interests: [], time: [] });
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const data = await fetchUserProfile();
+        setUser(data);
+        setForm({
+          interests: Array.isArray(data.interests) ? data.interests : [],
+          time: Array.isArray(data.time) ? data.time : [],
+        });
+      } catch (err) {
+        console.error('Failed to fetch user profile', err);
+        setStatus('❌ Failed to load user. Please login again.');
+      }
+    }
+
+    loadUser();
+  }, []);
+
+  const handleMultiChange = (selectedOptions, name) => {
+    const values = selectedOptions ? selectedOptions.map((opt) => opt.value) : [];
+    setForm((prev) => ({ ...prev, [name]: values }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!user?.name || !user?.email || !user?._id) {
+    if (!user?.name || !user?.email) {
       return setStatus('❌ User not authenticated. Please login again.');
     }
 
     try {
       setLoading(true);
       const { success, msg, error } = await updateUserProfile(form);
-      if (error) {
-        setStatus(`❌ ${msg}`);
+      if (error || !success) {
+        setStatus(`❌ ${msg || 'Failed to update profile'}`);
       } else {
         setStatus(`✅ ${msg}`);
       }
@@ -40,71 +74,70 @@ const EditProfile = () => {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="text-center mt-10 text-gray-500 text-lg">Loading user...</div>
+    );
+  }
+
   return (
-    <div className="p-6 max-w-xl mx-auto mt-10 bg-white shadow-md rounded-2xl border border-gray-200">
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800">Edit Profile</h2>
+    <div className="max-w-2xl mx-auto mt-16 px-6 py-8 bg-white shadow-xl rounded-2xl border border-gray-200">
+      <h1 className="text-3xl font-bold text-indigo-700 mb-6 text-center">Edit Your Profile</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="text-sm text-gray-600">
-          Editing profile as <span className="font-medium text-gray-900">{user?.name}</span> (
-          <span className="text-blue-600">{user?.email}</span>)
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-700">
+            Editing profile for <strong className="text-gray-900">{user.name}</strong>{' '}
+            (<span className="text-indigo-600">{user.email}</span>)
+          </p>
         </div>
 
+        {/* Preferred Time */}
         <div>
-          <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
-            Preferred Time
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Preferred Time <span className="text-xs text-gray-500">(Select one or more)</span>
           </label>
-          <select
+          <Select
+            isMulti
             name="time"
-            value={form.time}
-            onChange={handleChange}
-            required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">Select a time</option>
-            <option value="morning">Morning</option>
-            <option value="afternoon">Afternoon</option>
-            <option value="evening">Evening</option>
-            <option value="night">Night</option>
-          </select>
+            options={timeOptions}
+            value={timeOptions.filter((opt) => form.time.includes(opt.value))}
+            onChange={(selected) => handleMultiChange(selected, 'time')}
+            className="react-select-container"
+            classNamePrefix="react-select"
+          />
         </div>
 
+        {/* Interests */}
         <div>
-          <label htmlFor="interests" className="block text-sm font-medium text-gray-700 mb-1">
-            Interest
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Interests <span className="text-xs text-gray-500">(Select one or more)</span>
           </label>
-          <select
+          <Select
+            isMulti
             name="interests"
-            value={form.interests}
-            onChange={handleChange}
-            required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">Select an interest</option>
-            <option value="sports">Sports</option>
-            <option value="music">Music</option>
-            <option value="movies">Movies</option>
-            <option value="travel">Travel</option>
-            <option value="gaming">Gaming</option>
-            <option value="reading">Reading</option>
-            <option value="cooking">Cooking</option>
-            <option value="art">Art</option>
-            <option value="technology">Technology</option>
-          </select>
+            options={interestOptions}
+            value={interestOptions.filter((opt) => form.interests.includes(opt.value))}
+            onChange={(selected) => handleMultiChange(selected, 'interests')}
+            className="react-select-container"
+            classNamePrefix="react-select"
+          />
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-indigo-600 text-white py-2.5 rounded-lg hover:bg-indigo-700 transition duration-200 font-semibold shadow-md disabled:opacity-60"
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold transition duration-200 disabled:opacity-50"
         >
           {loading ? 'Updating...' : 'Update Profile'}
         </button>
 
+        {/* Status Message */}
         {status && (
           <div
-            className={`text-sm font-medium ${
-              status.startsWith('✅') ? 'text-green-600' : 'text-red-600'
+            className={`text-center text-sm font-medium px-4 py-2 rounded-md ${
+              status.startsWith('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
             }`}
           >
             {status}
@@ -116,3 +149,4 @@ const EditProfile = () => {
 };
 
 export default EditProfile;
+

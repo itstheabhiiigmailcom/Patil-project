@@ -6,7 +6,7 @@ async function getAdvertiserAnalytics(req, reply) {
     const advertiserId = req.user.sub;
 
     // Fetch only ad _id and title (metadata only)
-    const ads = await Ad.find({ advertiserId }).select('_id title feedbacks');
+const ads = await Ad.find({ advertiserId }).select('_id description feedbacks');
 
     const adIds = ads.map(ad => ad._id);
 
@@ -40,7 +40,7 @@ async function getAdvertiserAnalytics(req, reply) {
     // Create title lookup
     const adTitleMap = {};
     ads.forEach(ad => {
-      adTitleMap[ad._id.toString()] = ad.title;
+adTitleMap[ad._id.toString()] = ad.description;
     });
 
     const mostViewed = mostViewedRaw.map(view => ({
@@ -49,15 +49,17 @@ async function getAdvertiserAnalytics(req, reply) {
     }));
 
     // 3. Feedbacks (like/dislike) from embedded arrays
-    const feedbackCounts = ads.map(ad => {
-      const like = ad.feedbacks.filter(f => f.sentiment === 'like').length;
-      const dislike = ad.feedbacks.filter(f => f.sentiment === 'dislike').length;
-      return {
-        title: ad.title,
-        like,
-        dislike,
-      };
-    });
+const feedbackCounts = ads.map(ad => {
+  const feedbacks = ad.feedbacks || [];
+  const like = feedbacks.filter(f => f.sentiment === 'like').length;
+  const dislike = feedbacks.filter(f => f.sentiment === 'dislike').length;
+  return {
+    title: ad.description, // fix: use description
+    like,
+    dislike,
+  };
+});
+
 
     const mostLiked = [...feedbackCounts]
       .sort((a, b) => b.like - a.like)

@@ -12,6 +12,7 @@ const env = require('./config/env');
 const contactRoutes = require('./routes/contact.routs');
 const parse = require('@fastify/formbody')
 const userRoutes = require('./routes/user.routes');
+const adminRoutes = require('./routes/admin.routes');
 
 function buildApp() {
   const app = fastify({ logger: true });
@@ -32,8 +33,22 @@ function buildApp() {
 
   app.register(adRoutes);
   app.register(parse)
-  app.register(contactRoutes);
-  app.register(userRoutes,{prefix:'/api/v1'});
+  app.register(
+    async (fastify) => {fastify.register(contactRoutes);},
+    { prefix: '/api/v1' }
+  );
+  app.register(
+    async (fastify) => {
+      fastify.register(userRoutes);
+    },
+    { prefix: '/api/v1' }
+  );
+  app.register(
+    async (fastify) => {
+      fastify.register(adminRoutes);
+    },
+    { prefix: '/api/v1' }
+  );
   app.register(
     async (fastify) => {
       fastify.register(authRoutes);
