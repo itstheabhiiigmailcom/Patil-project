@@ -1,6 +1,6 @@
 const { 
   uploadAdHandler, 
-  getAdvertiserAdsHandler 
+  getAdvertiserAdsHandler,updateCreditHandler
 } = require('../controllers/ad.controller');
 const{getAdsForUserHandler, 
   submitFeedbackHandler,getAdHistoryForUserHandler } = require('../controllers/user.controller')
@@ -33,6 +33,10 @@ app.get(
   app.get('/api/v1/ads/my-ads', {
     preHandler: [app.authenticate],
     handler: getAdvertiserAdsHandler,
+  });
+  app.post('/api/v1/advertiser/updateCredit', {
+    preHandler: [app.authenticate],
+    handler: updateCreditHandler,
   });
 }
 

@@ -95,12 +95,20 @@ export default function useWatchAds() {
 useEffect(() => {
   if (!currentAd?._id || !user?._id) return;
 
-  const timer = setTimeout(() => {
-    sendAdView(currentAd._id, user._id); // ✅ pass user._id
+  const timer = setTimeout(async () => {
+    try {
+      const res = await sendAdView(currentAd._id, user._id); // ensure it returns { counted: true }
+      if (res?.counted) {
+        setTokensEarned((prev) => prev + 0.3);
+      }
+    } catch (err) {
+      console.error('View log failed:', err);
+    }
   }, 3000);
 
   return () => clearTimeout(timer);
 }, [currentAd?._id, user?._id]);
+
 
   return {
     user,
@@ -117,6 +125,5 @@ useEffect(() => {
     setShowFeedback,
     handleFeedbackSubmit,
     handleNextAd,
-    tokensEarned,
   };
 }

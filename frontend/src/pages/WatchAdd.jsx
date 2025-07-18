@@ -8,7 +8,6 @@ export default function WatchAds() {
   const {
     user,
     showAgeModal,
-    setShowAgeModal,
     age,
     setAge,
     handleAgeSubmit,
@@ -18,7 +17,6 @@ export default function WatchAds() {
     showFeedback,
     setShowFeedback,
     handleFeedbackSubmit,
-    tokensEarned,
     handleNextAd,
   } = useWatchAds();
 
@@ -33,11 +31,6 @@ export default function WatchAds() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white flex flex-col items-center justify-center p-4 md:p-8 relative">
       
-      {tokensEarned > 0 && (
-        <div className="absolute top-4 right-4 bg-green-500 bg-opacity-80 text-white px-4 py-2 rounded-xl text-sm shadow-lg backdrop-blur-md">
-          🎁 Tokens Earned: <span className="font-semibold">{tokensEarned}</span>
-        </div>
-      )}
 
       {showAgeModal && (
         <div className="w-full max-w-md">

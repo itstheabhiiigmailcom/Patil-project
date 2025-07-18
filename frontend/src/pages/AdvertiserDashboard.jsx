@@ -1,26 +1,24 @@
 // src/pages/AdvertiserDashboard.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { fetchMyAds } from '../api/addApi';
 
 export default function AdvertiserDashboard() {
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMyAds = async () => {
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/ads/my-ads`, {
-        withCredentials: true,
-      });
-      setAds(res.data.ads || []);
-    } catch (err) {
-      console.error('Failed to load your ads:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchMyAds();
+    const loadAds = async () => {
+      try {
+        const fetchedAds = await fetchMyAds();
+        setAds(fetchedAds);
+      } catch (err) {
+        // Error already logged in API file
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAds();
   }, []);
 
   if (loading) return <div className="text-center mt-10">Loading your ads...</div>;

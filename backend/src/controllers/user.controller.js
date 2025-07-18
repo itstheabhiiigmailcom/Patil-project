@@ -174,14 +174,13 @@ async function updateUserProfile(request, reply) {
   }
 }
 
-// controllers/user.controller.js
-// controllers/user.controller.js
+
 async function getUserProfile(req, reply) {
   try {
     const userId = req.user?.sub;
     if (!userId) return reply.unauthorized('User not authenticated');
 
-    const user = await User.findById(userId).select('name email interests time credit age');
+    const user = await User.findById(userId).select('name email interests time credit age role');
 
     if (!user) return reply.notFound('User not found');
 
@@ -191,6 +190,7 @@ async function getUserProfile(req, reply) {
       interests: user.interests || [],
       time: user.time || [],
       credit: user.credit || 0,
+      role: user.role || 'user',
       age: user.age || null,
     });
   } catch (err) {
