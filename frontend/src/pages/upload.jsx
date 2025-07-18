@@ -1,7 +1,8 @@
+// src/components/UploadAd.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useSelector } from 'react-redux';
-
+import { uploadAd } from '../api/addApi';
+import { fetchUserProfile } from '../api/getprofile';
 export default function UploadAd() {
   const { user } = useSelector((state) => state.auth);
 
@@ -15,9 +16,33 @@ export default function UploadAd() {
   });
 
   const [isAdvertiser, setIsAdvertiser] = useState(false);
+  const [credits, setCredits] = useState(null); 
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
-    if (user && user.role === 'advertiser' && user.email) {
+    const fetchCredits = async () => {
+      if (user?.role === 'advertiser') {
+        try {
+          const profile = await fetchUserProfile();
+          
+          setCredits(profile.credit || 0);
+        } catch (err) {
+          console.error('Error fetching profile:', err);
+          setCredits(0);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setCredits(0);
+        setLoading(false);
+      }
+    };
+    fetchCredits();
+  }, [user]);
+
+  useEffect(() => {
+    if (user?.role === 'advertiser' && user.email) {
       setForm((prev) => ({ ...prev, advertiserId: user.email }));
       setIsAdvertiser(true);
     } else {
@@ -42,20 +67,15 @@ export default function UploadAd() {
       return;
     }
 
-    const data = new FormData();
-    Object.entries(form).forEach(([key, val]) => {
-      if (key === 'file' && val) data.append('file', val);
-      else if (val !== undefined && val !== null) data.append(key, val);
-    });
+    if (credits < 1000) {
+      alert('You must have at least 1000 credits to upload an ad ❌');
+      return;
+    }
 
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/upload-ad`,
-        data,
-        { withCredentials: true }
-      );
+      const data = await uploadAd(form);
       alert('Ad Uploaded ✅');
-      console.log(res.data);
+      console.log(data);
     } catch (err) {
       console.error('Upload Error:', err.response?.data || err.message);
       alert('Upload failed ❌');
@@ -66,6 +86,22 @@ export default function UploadAd() {
     return (
       <div className="flex items-center justify-center min-h-[50vh] text-lg text-gray-600">
         Please log in to upload an ad.
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh] text-lg text-gray-500">
+        Checking credits...
+      </div>
+    );
+  }
+
+  if (credits < 1000) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh] text-yellow-600 text-center px-6 text-lg font-medium">
+        You need at least 1000 credits to upload an advertisement. Please top-up your account.
       </div>
     );
   }

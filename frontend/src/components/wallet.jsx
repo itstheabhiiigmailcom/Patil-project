@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { fetchUserProfile } from '../api/getProfile';
 import { Wallet, Activity, BarChart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useCredit } from '../contaxt/Credit';
 
 export default function UserWallet() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const { credit } = useCredit(); // ✅ Get live credit
 
   useEffect(() => {
     const getUser = async () => {
@@ -14,8 +16,8 @@ export default function UserWallet() {
     };
     getUser();
   }, []);
-  console.log(user);
-  if (!user) return null; // Not logged in or fetching failed
+
+  if (!user) return null;
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded-2xl shadow-md">
@@ -26,11 +28,9 @@ export default function UserWallet() {
       <div className="mb-4 p-4 border rounded-lg bg-gray-50">
         <p className="text-gray-600">Credit Amount</p>
         <p className="text-lg font-medium text-green-700">
-          ₹{user.credit || 0}
+          ₹{credit.toFixed(2)} {/* ✅ Live Credit Display */}
         </p>
       </div>
-
-      {/* Future enhancements can go here */}
 
       <div className="grid grid-cols-2 gap-4">
         <div className="p-4 border rounded-lg bg-gray-50 text-center">
@@ -45,9 +45,10 @@ export default function UserWallet() {
           <p className="text-lg font-medium text-purple-700">₹0</p>
         </div>
       </div>
+
       <button
         onClick={() => navigate('/dashboard')}
-        className="mb-6 px-12 py-5 text-xs uppercase tracking-widest font-medium text-black bg-white rounded-full shadow-[0px_8px_15px_rgba(0,0,0,0.1)] transition-all duration-300 hover:bg-[#23c483] hover:text-white hover:shadow-[0px_15px_20px_rgba(46,229,157,0.4)] transform hover:-translate-y-2 active:translate-y-0 flex items-center gap-2"
+        className="mt-6 px-12 py-5 text-xs uppercase tracking-widest font-medium text-black bg-white rounded-full shadow-[0px_8px_15px_rgba(0,0,0,0.1)] transition-all duration-300 hover:bg-[#23c483] hover:text-white hover:shadow-[0px_15px_20px_rgba(46,229,157,0.4)] transform hover:-translate-y-2 active:translate-y-0 flex items-center gap-2"
       >
         ← Back to Dashboard
       </button>

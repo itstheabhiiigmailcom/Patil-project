@@ -18,12 +18,15 @@ import UserProfile from './components/UserProfile';
 import AdminUserList from './components/AllUsers';
 import UserSearch from './components/searchUserByEmail';
 import UserWallet from './components/wallet';
+import GlobalCreditWatcher from './components/creditPractice';
 
 /* empty stubs – replace later */
 const Empty = () => <div />;
 
 export default function App() {
   return (
+    <>
+     <GlobalCreditWatcher/>
     <Routes>
       {/* -------- PUBLIC -------- */}
       <Route element={<PublicLayout />}>
@@ -106,5 +109,6 @@ export default function App() {
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
-  );
+</>
+     );
 }
