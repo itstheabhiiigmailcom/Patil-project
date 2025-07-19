@@ -21,11 +21,11 @@ async function logAdView(req, reply) {
     return reply.send({ counted: false, message: 'Already viewed recently' });
   }
 
-  // Save the view
+  
   const view = await AdViewLog.create({ adId, userId, ip });
   await Ad.findByIdAndUpdate(adId, { $inc: { views: 1 } });
 
-  // 💰 Add 0.3 credit to the user
+  // Add 0.3 credit to the user
   if (userId) {
     await User.findByIdAndUpdate(userId, { $inc: { credit: 0.3 } });
   }
