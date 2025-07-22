@@ -1,20 +1,20 @@
-import axios from 'axios';
+import axios from 'axios'
+export async function sendAdView(adId) {
+  if (!adId) return;
 
-export async function sendAdView(adId,userId) {
-if (!adId) return;
-console.log(`📺 Sending view for Ad ID: ${adId} by User ID: ${userId}`);
-try {
-await axios.post(
-`${import.meta.env.VITE_API_URL}/ads/view`,
-{ adId,
-    userId
- },
-{ withCredentials: true }
-);
-console.log(`✅ View counted for Ad ID: ${adId}`);
-console.log(`📺 Sending view for Ad ID: ${adId} by User ID: ${userId}`);
+  console.log(`📺 Sending view for Ad ID: ${adId}`);
 
-} catch (error) {
-console.error('❌ Failed to send ad view:', error);
-}
+  try {
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_URL}/ads/view`,
+      { adId },
+      { withCredentials: true }
+    );
+
+    console.log(`✅ View counted for Ad ID: ${adId}`, res.data);
+    return res.data;
+  } catch (error) {
+    console.error('❌ Failed to send ad view:', error);
+    throw error;
+  }
 }

@@ -82,5 +82,29 @@ async function getAdvertiserAdsHandler(req, reply) {
     reply.internalServerError('Failed to fetch ads');
   }
 }
+async function updateCreditHandler(req, reply) {
+  try {
+    const userId = req.userData._id;
+    const { credit } = req.body;
 
-module.exports = { uploadAdHandler,getAdvertiserAdsHandler };
+    if (typeof credit !== 'number') {
+      return reply.badRequest('Invalid credit value');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return reply.notFound('User not found');
+
+    user.credit = credit;
+    await user.save();
+
+    return reply.send({
+      message: 'Credit updated successfully',
+      credit: user.credit,
+    });
+  } catch (err) {
+    req.log.error({ err }, '[updateCreditHandler] Failed to update credit');
+    return reply.internalServerError('Could not update credit');
+  }
+}
+
+module.exports = { uploadAdHandler,getAdvertiserAdsHandler,updateCreditHandler };

@@ -4,7 +4,6 @@ import { useState } from 'react';
 const anchors = [
   { id: 'home', label: 'Home' },
   { id: 'about', label: 'About' },
-  { id: 'contact', label: 'Contact' },
 ];
 
 export default function Navbar() {

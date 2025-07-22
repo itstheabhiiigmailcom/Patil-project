@@ -60,6 +60,14 @@ export default function EditUserModal({ user, onClose, onUpdated }) {
         placeholder="Age"
       />
       <input
+        type="number"
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/90 placeholder-gray-500 transition-all"
+        name="credit"
+        value={form.credit || ''}
+        onChange={handleChange}
+        placeholder="credit"
+      />
+      <input
         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/90 placeholder-gray-500 transition-all"
         name="interests"
         value={form.interests?.join(', ') || ''}
