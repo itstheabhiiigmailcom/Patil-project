@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import AuthNavbar from '../components/AuthNavbar';
 import Sidebar from '../components/Sidebar';
@@ -8,17 +9,20 @@ import AdminAnalytics from '../components/AdminAnalytics';
 export default function DashboardLayout() {
   const user = useSelector((s) => s.auth.user);
   const location = useLocation();
-
   const isRootDashboard = location.pathname === '/dashboard';
+
+  // Sidebar open state for mobile
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Sidebar with toggle support */}
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
       {/* Right side */}
       <div className="flex flex-1 flex-col">
-        <AuthNavbar />
+        {/* Navbar with hamburger menu */}
+        <AuthNavbar setSidebarOpen={setSidebarOpen} />
 
         <main className="flex-1 overflow-y-auto bg-gray-50 p-8">
           {/* Show analytics on root dashboard only */}

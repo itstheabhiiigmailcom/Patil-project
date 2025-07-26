@@ -32,7 +32,9 @@ export function CreditProvider({ children, pollingInterval = 5000 }) {
         // 📉 For advertisers: deduct credit for ad views
         if (user.role === 'advertiser') {
           const ads = await fetchMyAds();
+          console.log('Fetched role is: ',user.role);
           const totalViews = ads.reduce((sum, ad) => sum + (ad.views || 0), 0);
+          console.log('Total views:', totalViews);
           setViews(totalViews);
 
           if (prevViewsRef.current === null) {
@@ -44,6 +46,7 @@ export function CreditProvider({ children, pollingInterval = 5000 }) {
           if (newViews > 0) {
             const cost = newViews * 0.5;
             const newCredit = Math.max(0, creditRef.current - cost);
+            console.log(`Deducting ₹${cost} for ${newViews} new views. New credit: ₹${newCredit}`);
             await updateCredit(newCredit);
             creditRef.current = newCredit;
             setCredit(newCredit);
