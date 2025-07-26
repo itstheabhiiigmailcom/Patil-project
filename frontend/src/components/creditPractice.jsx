@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { fetchMyAds, updateCredit } from '../api/addApi';
 import { fetchUserProfile } from '../api/getProfile';
 
-export default function GlobalCreditWatcher({ pollingInterval = 2000 }) {
+export default function GlobalCreditWatcher({ pollingInterval = 5000 }) {
   const prevViewsRef = useRef(null); // Used to store previous total views
   const creditRef = useRef(0);       // Used to track credit updates
   const userRef = useRef(null);      // Store user details after first fetch
