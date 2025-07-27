@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import { useSelector } from 'react-redux';
 import AdvertiserAnalytics from '../components/AdvertiserAnalytics';
 import AdminAnalytics from '../components/AdminAnalytics';
+import Diary from '../components/Diary';
 
 export default function DashboardLayout() {
   const user = useSelector((s) => s.auth.user);
@@ -31,6 +32,8 @@ export default function DashboardLayout() {
               <AdvertiserAnalytics />
             ) : user?.role === 'admin' ? (
               <AdminAnalytics />
+            ) : user?.role === 'user' ? (
+              <Diary/>
             ) : (
               <div className="text-gray-600 text-center">No dashboard content available for your role.</div>
             )

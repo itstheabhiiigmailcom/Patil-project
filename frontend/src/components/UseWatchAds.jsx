@@ -1,9 +1,9 @@
-// ✅ src/components/WatchAds/useWatchAds.js
+// src/hooks/useWatchAds.js
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import axios from 'axios';
 import { fetchCurrentUser } from '../store/authSlice';
 import { sendAdView } from '../api/AdView';
+import { fetchAdsForUser, updateUserAge } from '../api/userApi';
 
 export default function useWatchAds() {
   const { user } = useSelector((state) => state.auth);
@@ -19,6 +19,7 @@ export default function useWatchAds() {
 
   const currentAd = ads[currentIndex] || null;
 
+  // Load user on mount
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -34,6 +35,7 @@ export default function useWatchAds() {
     loadUser();
   }, [dispatch, user]);
 
+  // Fetch ads or show age modal
   useEffect(() => {
     if (!loadingUser && user) {
       if (!user.age) {
@@ -46,11 +48,8 @@ export default function useWatchAds() {
 
   const fetchAds = async (userId) => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/ads/for-user/${userId}`,
-        { withCredentials: true }
-      );
-      setAds(res.data.ads || []);
+      const ads = await fetchAdsForUser(userId);
+      setAds(ads);
     } catch (err) {
       console.error('Ad Fetch Error:', err);
     }
@@ -61,7 +60,7 @@ export default function useWatchAds() {
     if (currentIndex + 1 < ads.length) {
       setCurrentIndex((prev) => prev + 1);
     } else {
-      setCurrentIndex(ads.length); // this ensures currentAd becomes null
+      setCurrentIndex(ads.length);
     }
   };
 
@@ -71,11 +70,7 @@ export default function useWatchAds() {
     }
 
     try {
-      await axios.put(
-        `${import.meta.env.VITE_API_URL}/auth/set-age`,
-        { age },
-        { withCredentials: true }
-      );
+      await updateUserAge(age);
       const updatedUser = await dispatch(fetchCurrentUser()).unwrap();
       if (updatedUser?.age) {
         setShowAgeModal(false);
@@ -92,23 +87,23 @@ export default function useWatchAds() {
     handleNextAd();
   };
 
-useEffect(() => {
-  if (!currentAd?._id || !user?._id) return;
+  // View logging
+  useEffect(() => {
+    if (!currentAd?._id || !user?._id) return;
 
-  const timer = setTimeout(async () => {
-    try {
-      const res = await sendAdView(currentAd._id, user._id); // ensure it returns { counted: true }
-      if (res?.counted) {
-        setTokensEarned((prev) => prev + 0.3);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await sendAdView(currentAd._id, user._id);
+        if (res?.counted) {
+          setTokensEarned((prev) => prev + 0.3);
+        }
+      } catch (err) {
+        console.error('View log failed:', err);
       }
-    } catch (err) {
-      console.error('View log failed:', err);
-    }
-  }, 3000);
+    }, 3000);
 
-  return () => clearTimeout(timer);
-}, [currentAd?._id, user?._id]);
-
+    return () => clearTimeout(timer);
+  }, [currentAd?._id, user?._id]);
 
   return {
     user,

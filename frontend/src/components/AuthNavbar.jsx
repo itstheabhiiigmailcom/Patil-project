@@ -22,7 +22,7 @@ export default function AuthNavbar({ setSidebarOpen }) {
       <div className="flex items-center gap-3">
         <div className="text-sm sm:text-base md:text-lg font-semibold text-gray-700">
           Hi,&nbsp;
-          <span className="text-indigo-600 font-bold">{user?.credit || 'User'}</span>
+          <span className="text-indigo-600 font-bold">{user?.name || 'User'}</span>
         </div>
       </div>
 

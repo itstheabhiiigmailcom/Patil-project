@@ -1,6 +1,33 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+const diaryEntrySchema = new Schema(
+  {
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+    title: {
+      type: String,
+      trim: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+    mood: {
+      type: String,
+      enum: ['happy', 'sad', 'angry', 'excited', 'neutral', 'anxious'],
+      default: 'neutral',
+    },
+    tags: {
+      type: [String],
+      default: [],
+    },
+  },
+  { _id: false } // optional: prevents separate ObjectId for each diary entry
+);
+
 const userSchema = new Schema(
   {
     name: {
@@ -56,7 +83,8 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
       min: 0, // Ensure credit cannot be negative
-    }
+    },
+    diaryEntries: [diaryEntrySchema],
 
   },
   { timestamps: true }

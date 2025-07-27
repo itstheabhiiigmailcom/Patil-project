@@ -40,3 +40,20 @@ export const updateCredit = async (newCredit) => {
     console.error('Failed to update credit:', err);
   }
 };
+
+export const submitAdFeedback = async (adId, comment, sentiment) => {
+  const response = await axios.post(
+    `${import.meta.env.VITE_API_URL}/ads/feedback/${adId}`,
+    { comment, sentiment: sentiment || 'not-reacted' },
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
+export const fetchAnalyticsData = async () => {
+  const response = await axios.get(
+    `${import.meta.env.VITE_API_URL}/ads/analytics`,
+    { withCredentials: true }
+  );
+  return response.data;
+};

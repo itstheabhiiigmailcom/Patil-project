@@ -11,6 +11,19 @@ async function userRoutes(fastify) {
     preHandler: [fastify.authenticate],
     handler: userController.updateUserProfile,
   });
+
+  fastify.post('/diary',{
+    preHandler: [fastify.authenticate],
+    handler: userController.addDiaryEntry,
+  });
+  fastify.get('/diaryget',{
+    preHandler: [fastify.authenticate],
+    handler: userController.getDiaryEntries,
+  });
+    fastify.delete('/diary/:index',{
+    preHandler: [fastify.authenticate],
+    handler: userController.deleteDiaryEntry,
+  });
 }
 
 module.exports = fp(userRoutes); // ✅ THIS IS REQUIRED

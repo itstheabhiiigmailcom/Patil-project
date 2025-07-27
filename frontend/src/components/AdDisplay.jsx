@@ -1,6 +1,7 @@
+// src/components/AdDisplay.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { submitAdFeedback } from '../api/addApi';
 
 export default function AdDisplay({
   ad,
@@ -12,38 +13,24 @@ export default function AdDisplay({
 }) {
   const { user } = useSelector((state) => state.auth);
   const [comment, setComment] = useState('');
-  const [sentiment, setSentiment] = useState(null); // 'like', 'dislike', or null
+  const [sentiment, setSentiment] = useState(null);
   const [loading, setLoading] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
 
   useEffect(() => {
     if (!user || !ad) return;
-
-    const checkFeedback = () => {
-      const matched = ad.feedbacks?.some(
-        (fb) => fb.userId === user._id || fb.userId?._id === user._id
-      );
-      setAlreadySubmitted(matched);
-    };
-
-    checkFeedback();
+    const matched = ad.feedbacks?.some(
+      (fb) => fb.userId === user._id || fb.userId?._id === user._id
+    );
+    setAlreadySubmitted(matched);
   }, [user, ad]);
 
-  const submitFeedback = async () => {
-    if (!comment.trim()) {
-      return alert('Please enter a comment.');
-    }
+  const handleSubmit = async () => {
+    if (!comment.trim()) return alert('Please enter a comment.');
 
-    setLoading(true);
     try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/ads/feedback/${ad._id}`,
-        {
-          comment,
-          sentiment: sentiment || 'not-reacted',
-        },
-        { withCredentials: true }
-      );
+      setLoading(true);
+      await submitAdFeedback(ad._id, comment, sentiment);
       setAlreadySubmitted(true);
       handleFeedbackSubmit();
     } catch (err) {
@@ -108,7 +95,7 @@ export default function AdDisplay({
           </div>
 
           <button
-            onClick={submitFeedback}
+            onClick={handleSubmit}
             disabled={loading}
             className="bg-green-600 px-4 py-2 rounded w-full"
           >
