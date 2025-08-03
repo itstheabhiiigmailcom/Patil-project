@@ -1,4 +1,3 @@
-// src/pages/SignUp.jsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -15,7 +14,9 @@ export default function SignUp() {
     name: '',
     email: '',
     password: '',
-    role: 'user', // default role
+    role: 'user',
+    companyName: '', // <-- Added
+    mobileNumber: '', // <-- Added
   });
 
   const handleChange = (e) =>
@@ -24,8 +25,16 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(register(form)).unwrap();
-      navigate('/dashboard'); // go to landing page on success
+      const payload = { ...form };
+      if (form.role === 'user') {
+        delete payload.companyName;
+        delete payload.mobileNumber;
+      }
+
+      await dispatch(register(payload)).unwrap();
+      // ✅ Save email for OTP verification
+      localStorage.setItem('emailForOtp', form.email);
+      navigate('/verify-otp');
     } catch (err) {
       console.error(err);
     }
@@ -70,7 +79,32 @@ export default function SignUp() {
             className="w-full rounded border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-600"
           />
 
-          {/* Role picker */}
+          {/* Additional Fields for Advertiser - Moved ABOVE Role Picker */}
+          {form.role === 'advertiser' && (
+            <>
+              {/* Company Name */}
+              <input
+                name="companyName"
+                placeholder="Company Name"
+                required
+                value={form.companyName}
+                onChange={handleChange}
+                className="w-full rounded border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-600"
+              />
+
+              {/* Mobile Number */}
+              <input
+                name="mobileNumber"
+                placeholder="Mobile Number"
+                required
+                value={form.mobileNumber}
+                onChange={handleChange}
+                className="w-full rounded border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-600"
+              />
+            </>
+          )}
+
+          {/* Role picker - Appears below Advertiser fields */}
           <div className="flex items-center justify-between">
             <label className="flex items-center space-x-2">
               <input
@@ -119,7 +153,7 @@ export default function SignUp() {
           </div>
         )}
 
-        {/* Google Sign In Button - Only show for users, not advertisers */}
+        {/* Google Sign In Button - Only for users */}
         {form.role === 'user' && (
           <GoogleSignInButton text="Sign up with Google" />
         )}

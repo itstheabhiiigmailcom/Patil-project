@@ -7,12 +7,14 @@ export const loginAPI = async (cred) => {
 };
 
 export const registerAPI = async (data) => {
-  const res = await apiRequest('/auth/register', { method: 'POST', body: data });
+  const res = await apiRequest('/auth/register', {
+    method: 'POST',
+    body: data,
+  });
   return res.user; // ✅ only return the user object
 };
 
-export const logoutAPI = () =>
-  apiRequest('/auth/logout', { method: 'POST' });
+export const logoutAPI = () => apiRequest('/auth/logout', { method: 'POST' });
 
 export const currentUserAPI = async () => {
   const res = await apiRequest('/auth/me');

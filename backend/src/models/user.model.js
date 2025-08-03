@@ -58,11 +58,21 @@ const userSchema = new Schema(
       default: false,
     },
     age: {
-      type: Number
+      type: Number,
     },
     interests: {
       type: [String],
-      enum: ['sports', 'music', 'movies', 'travel', 'gaming', 'reading', 'cooking', 'art', 'technology'],
+      enum: [
+        'sports',
+        'music',
+        'movies',
+        'travel',
+        'gaming',
+        'reading',
+        'cooking',
+        'art',
+        'technology',
+      ],
       default: [],
     },
     time: {
@@ -77,15 +87,20 @@ const userSchema = new Schema(
     },
     ban: {
       isBanned: { type: Boolean, default: false },
-      bannedUntil: { type: Date, default: null }
+      bannedUntil: { type: Date, default: null },
     },
-    credit:{
+    credit: {
       type: Number,
       default: 0,
       min: 0, // Ensure credit cannot be negative
     },
     diaryEntries: [diaryEntrySchema],
-
+    // Optional fields for advertiser
+    companyName: { type: String },
+    mobileNumber: { type: String },
+    isEmailVerified: { type: Boolean, default: false },
+    emailOTP: String, // ✅ hashed OTP
+    otpExpires: Date,
   },
   { timestamps: true }
 );

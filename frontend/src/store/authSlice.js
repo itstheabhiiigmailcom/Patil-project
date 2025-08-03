@@ -57,7 +57,13 @@ const initialState = {
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {}, // no client‑side logout reducer needed
+  reducers: {
+    setUser(state, action) {
+      state.user = action.payload;
+      state.status = 'succeeded';
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     const pending = (state) => {
       state.status = 'loading';
@@ -74,7 +80,6 @@ const authSlice = createSlice({
     };
 
     builder
-      // login / register
       .addCase(login.pending, pending)
       .addCase(login.fulfilled, fulfilledWithUser)
       .addCase(login.rejected, rejected)
@@ -83,12 +88,10 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, fulfilledWithUser)
       .addCase(register.rejected, rejected)
 
-      // fetchCurrentUser
       .addCase(fetchCurrentUser.pending, pending)
       .addCase(fetchCurrentUser.fulfilled, fulfilledWithUser)
-      .addCase(fetchCurrentUser.rejected, rejected) // ← now status = 'failed'
+      .addCase(fetchCurrentUser.rejected, rejected)
 
-      // logout
       .addCase(logout.pending, pending)
       .addCase(logout.fulfilled, (state) => {
         state.status = 'failed';
@@ -98,5 +101,8 @@ const authSlice = createSlice({
       .addCase(logout.rejected, rejected);
   },
 });
+
+// ✅ Export setUser action
+export const { setUser } = authSlice.actions;
 
 export default authSlice.reducer;

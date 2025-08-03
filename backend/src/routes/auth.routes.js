@@ -15,6 +15,8 @@ async function authRoutes(fastify) {
           email: { type: 'string', format: 'email' },
           password: { type: 'string', minLength: 6 },
           role: { type: 'string', enum: ['user', 'advertiser', 'admin'] },
+          companyName: { type: 'string' },
+          mobileNumber: { type: 'string' },
         },
       },
     },
@@ -35,6 +37,39 @@ async function authRoutes(fastify) {
     handler: authController.login,
   });
 
+  // ── OTP Verify ──────────────────────
+  fastify.post('/auth/verify-otp', {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['email', 'otp'],
+        additionalProperties: false,
+        properties: {
+          email: { type: 'string', format: 'email' },
+          otp: { type: 'string', minLength: 6, maxLength: 6 },
+        },
+      },
+    },
+    handler: authController.verifyOtp,
+  });
+
+  // ── Resend OTP ──────────────────────
+  fastify.post('/auth/resend-otp', {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['email'],
+        additionalProperties: false,
+        properties: {
+          email: { type: 'string', format: 'email' },
+        },
+      },
+    },
+    handler: authController.resendOtp,
+  });
+
+  fastify.get('/auth/get-otp-expiry', authController.getOtpExpiry);
+
   fastify.put('/auth/set-age', {
     preHandler: [fastify.authenticate],
     handler: setAgeHandler,
@@ -52,7 +87,7 @@ async function authRoutes(fastify) {
 
   // Google OAuth routes
   fastify.get('/auth/google', oauthController.googleOAuth);
-  
+
   fastify.get('/auth/google/callback', oauthController.googleCallback);
 }
 

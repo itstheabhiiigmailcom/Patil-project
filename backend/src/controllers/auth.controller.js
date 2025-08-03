@@ -7,6 +7,7 @@ const {
 } = require('../utils/token.util');
 const env = require('../config/env');
 
+const { sendOtpEmail, verifyStoredOtp } = require('../utils/otp.util');
 /**
  * Helper: sets HTTP‑only auth cookies.
  */
@@ -34,27 +35,43 @@ function setAuthCookies(reply, accessToken, refreshToken) {
 /* ───────────────── register ───────────────── */
 module.exports.register = async function register(request, reply) {
   try {
-    const { name, email, password, role = 'user' } = request.body;
+    const {
+      name,
+      email,
+      password,
+      role = 'user',
+      companyName,
+      mobileNumber,
+    } = request.body;
 
     const existing = await User.findOne({ email });
     if (existing) return reply.badRequest('Email already registered');
+
     if (!['user', 'advertiser', 'admin'].includes(role))
       return reply.badRequest('Invalid role');
 
-    const user = await User.create({ name, email, password, role });
+    const userData = { name, email, password, role };
 
-    const accessToken = await reply.jwtSign({ sub: user._id, role: user.role });
-    const refreshToken = await generateRefreshToken(user._id, reply);
+    // Add advertiser-specific fields if applicable
+    if (role === 'advertiser') {
+      if (!companyName || !mobileNumber) {
+        return reply.badRequest('Company name and mobile number required');
+      }
 
-    setAuthCookies(reply, accessToken, refreshToken);
+      userData.companyName = companyName;
+      userData.mobileNumber = mobileNumber;
+    }
 
+    // ✅ Create user
+    const user = await User.create(userData);
+
+    // ✅ Send OTP Email (OTP is hashed and stored inside sendOtpEmail)
+    await sendOtpEmail(user.email);
+
+    // ✅ Send minimal response (NO TOKENS yet)
     reply.code(201).send({
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      message: 'Registered successfully. OTP sent to email.',
+      email: user.email,
     });
   } catch (err) {
     request.log.error(err);
@@ -155,4 +172,59 @@ module.exports.getCurrentUser = async function (request, reply) {
     request.log.error(err);
     reply.internalServerError();
   }
+};
+
+module.exports.verifyOtp = async function verifyOtp(request, reply) {
+  const { email, otp } = request.body;
+
+  const user = await User.findOne({ email });
+  if (!user) return reply.notFound('User not found');
+
+  const isValid = await verifyStoredOtp(email, otp);
+  if (!isValid) return reply.badRequest('Invalid or expired OTP');
+
+  // ✅ OTP verified – now issue tokens
+  const accessToken = await reply.jwtSign({ sub: user._id, role: user.role });
+  const refreshToken = await generateRefreshToken(user._id, reply);
+  setAuthCookies(reply, accessToken, refreshToken);
+
+  reply.send({
+    message: 'Email verified. Logged in.',
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      companyName: user.companyName,
+      mobileNumber: user.mobileNumber,
+    },
+  });
+};
+
+module.exports.resendOtp = async function (request, reply) {
+  const { email } = request.body;
+  const user = await User.findOne({ email });
+  if (!user) return reply.notFound('User not found');
+  if (user.isEmailVerified) return reply.badRequest('Email already verified');
+  await sendOtpEmail(email);
+  reply.send({ message: 'OTP resent successfully', expiresAt });
+};
+
+module.exports.getOtpExpiry = async function getOtpExpiry(req, reply) {
+  const { email } = req.query;
+
+  if (!email) {
+    return reply.badRequest('Email is required');
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) return reply.notFound('User not found');
+
+  if (!user.otpExpires) {
+    return reply.badRequest('No OTP expiry set for this user');
+  }
+
+  reply.send({
+    expiresAt: user.otpExpires.toISOString(),
+  });
 };

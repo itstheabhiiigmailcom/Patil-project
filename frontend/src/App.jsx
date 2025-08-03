@@ -19,7 +19,7 @@ import AdminUserList from './components/AllUsers';
 import UserSearch from './components/searchUserByEmail';
 import UserWallet from './components/wallet';
 import GlobalCreditWatcher from './components/creditPractice';
-
+import VerifyOtp from './pages/VerifyOtp';
 
 /* empty stubs – replace later */
 const Empty = () => <div />;
@@ -48,6 +48,14 @@ export default function App() {
               </GuestRoute>
             }
           />
+          <Route
+            path="verify-otp"
+            element={
+              <GuestRoute>
+                <VerifyOtp />
+              </GuestRoute>
+            }
+          />
         </Route>
 
         {/* -------- DASHBOARD (auth‑only) -------- */}
@@ -60,42 +68,82 @@ export default function App() {
           }
         >
           <Route index element={<Empty />} /> {/* /dashboard */}
-          <Route path="upload" element={<ProtectedRoute>
-            <UploadAd />
-          </ProtectedRoute>} />
-          <Route path="wallet" element={<ProtectedRoute>
-              <UserWallet />
-          </ProtectedRoute>} />
-          <Route path="my-ads" element={<ProtectedRoute>
-              <AdvertiserDashboard />
-          </ProtectedRoute>} />
-          <Route path="watch" element={
-            <ProtectedRoute>
-              <WatchAd />
-            </ProtectedRoute>
-          } />
-          <Route path="history" element={
-            <ProtectedRoute>
-              <History />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="upload"
+            element={
+              <ProtectedRoute>
+                <UploadAd />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="wallet"
+            element={
+              <ProtectedRoute>
+                <UserWallet />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="my-ads"
+            element={
+              <ProtectedRoute>
+                <AdvertiserDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="watch"
+            element={
+              <ProtectedRoute>
+                <WatchAd />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="history"
+            element={
+              <ProtectedRoute>
+                <History />
+              </ProtectedRoute>
+            }
+          />
           {/* Add more dashboard routes as needed */}
           <Route path="account" element={<Empty />} />
-          <Route path="contact" element={<ProtectedRoute>
-            <ContactForm />
-          </ProtectedRoute>} />
-
+          <Route
+            path="contact"
+            element={
+              <ProtectedRoute>
+                <ContactForm />
+              </ProtectedRoute>
+            }
+          />
         </Route>
-        <Route path='/edit-profile' element={<ProtectedRoute>
-          <EditProfile />
-        </ProtectedRoute>} />
-        <Route path='/profile' element={<ProtectedRoute>
-          <UserProfile />
-        </ProtectedRoute>} />
+        <Route
+          path="/edit-profile"
+          element={
+            <ProtectedRoute>
+              <EditProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path='/dashboard/users/search' element={<ProtectedRoute>
-          <UserSearch />
-        </ProtectedRoute>} />
+        <Route
+          path="/dashboard/users/search"
+          element={
+            <ProtectedRoute>
+              <UserSearch />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/users/AllUsers"
           element={
@@ -104,7 +152,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
 
         {/* -------- FALLBACKS -------- */}
         <Route path="/unauthorized" element={<Unauthorized />} />
