@@ -2,7 +2,7 @@ const assert = require('assert');
 require('dotenv').config();
 
 const env = {
-  PORT: process.env.PORT || 4000,
+  PORT: process.env.PORT,
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN || '15m',

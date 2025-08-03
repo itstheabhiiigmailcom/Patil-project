@@ -1,5 +1,5 @@
+// src/components/AdvertiserAnalytics.jsx
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
   BarChart,
   Bar,
@@ -11,76 +11,74 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
+import { fetchAnalyticsData } from '../api/addApi';
 
 export default function AdvertiserAnalytics() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/ads/analytics`, { withCredentials: true })
-      .then((res) => setData(res.data))
+    fetchAnalyticsData()
+      .then(setData)
       .catch(console.error);
   }, []);
 
   if (!data) return <p className="text-center py-10">Loading analytics...</p>;
 
-  // Optional: format long titles
   const formatTitle = (title) => (title?.length > 20 ? title.slice(0, 20) + '...' : title);
 
   return (
     <div className="space-y-10">
       {/* Views Over Time */}
-      <div className="bg-white p-4 rounded-2xl shadow">
-        <h2 className="text-lg font-bold mb-2">Views Over Time</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={data.viewsOverTime}>
-            <XAxis dataKey="_id.date" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="count" stroke="#6366F1" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      <ChartSection title="Views Over Time">
+        <LineChart data={data.viewsOverTime}>
+          <XAxis dataKey="_id.date" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line type="monotone" dataKey="count" stroke="#6366F1" />
+        </LineChart>
+      </ChartSection>
 
       {/* Most Viewed Ads */}
-      <div className="bg-white p-4 rounded-2xl shadow">
-        <h2 className="text-lg font-bold mb-2">Most Viewed Ads</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={data.mostViewed}>
-            <XAxis dataKey={(ad) => formatTitle(ad.title)} />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#22C55E" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      <ChartSection title="Most Viewed Ads">
+        <BarChart data={data.mostViewed}>
+          <XAxis dataKey={(ad) => formatTitle(ad.title)} />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="count" fill="#22C55E" />
+        </BarChart>
+      </ChartSection>
 
       {/* Most Liked Ads */}
-      <div className="bg-white p-4 rounded-2xl shadow">
-        <h2 className="text-lg font-bold mb-2">Most Liked Ads</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={data.mostLiked}>
-            <XAxis dataKey={(ad) => formatTitle(ad.title)} />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#3B82F6" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      <ChartSection title="Most Liked Ads">
+        <BarChart data={data.mostLiked}>
+          <XAxis dataKey={(ad) => formatTitle(ad.title)} />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="count" fill="#3B82F6" />
+        </BarChart>
+      </ChartSection>
 
       {/* Most Disliked Ads */}
-      <div className="bg-white p-4 rounded-2xl shadow">
-        <h2 className="text-lg font-bold mb-2">Most Disliked Ads</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={data.mostDisliked}>
-            <XAxis dataKey={(ad) => formatTitle(ad.title)} />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#EF4444" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      <ChartSection title="Most Disliked Ads">
+        <BarChart data={data.mostDisliked}>
+          <XAxis dataKey={(ad) => formatTitle(ad.title)} />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="count" fill="#EF4444" />
+        </BarChart>
+      </ChartSection>
+    </div>
+  );
+}
+
+function ChartSection({ title, children }) {
+  return (
+    <div className="bg-white p-4 rounded-2xl shadow">
+      <h2 className="text-lg font-bold mb-2">{title}</h2>
+      <ResponsiveContainer width="100%" height={250}>
+        {children}
+      </ResponsiveContainer>
     </div>
   );
 }

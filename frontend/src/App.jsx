@@ -20,95 +20,96 @@ import UserSearch from './components/searchUserByEmail';
 import UserWallet from './components/wallet';
 import GlobalCreditWatcher from './components/creditPractice';
 
+
 /* empty stubs – replace later */
 const Empty = () => <div />;
 
 export default function App() {
   return (
     <>
-     <GlobalCreditWatcher/>
-    <Routes>
-      {/* -------- PUBLIC -------- */}
-      <Route element={<PublicLayout />}>
-        <Route index element={<Landing />} /> {/* "/" */}
+      <GlobalCreditWatcher />
+      <Routes>
+        {/* -------- PUBLIC -------- */}
+        <Route element={<PublicLayout />}>
+          <Route index element={<Landing />} /> {/* "/" */}
+          <Route
+            path="signin"
+            element={
+              <GuestRoute>
+                <SignIn />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="signup"
+            element={
+              <GuestRoute>
+                <SignUp />
+              </GuestRoute>
+            }
+          />
+        </Route>
+
+        {/* -------- DASHBOARD (auth‑only) -------- */}
         <Route
-          path="signin"
+          path="/dashboard/*"
           element={
-            <GuestRoute>
-              <SignIn />
-            </GuestRoute>
+            <ProtectedRoute allowedRoles={['admin', 'advertiser', 'user']}>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Empty />} /> {/* /dashboard */}
+          <Route path="upload" element={<ProtectedRoute>
+            <UploadAd />
+          </ProtectedRoute>} />
+          <Route path="wallet" element={<ProtectedRoute>
+              <UserWallet />
+          </ProtectedRoute>} />
+          <Route path="my-ads" element={<ProtectedRoute>
+              <AdvertiserDashboard />
+          </ProtectedRoute>} />
+          <Route path="watch" element={
+            <ProtectedRoute>
+              <WatchAd />
+            </ProtectedRoute>
+          } />
+          <Route path="history" element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          } />
+          {/* Add more dashboard routes as needed */}
+          <Route path="account" element={<Empty />} />
+          <Route path="contact" element={<ProtectedRoute>
+            <ContactForm />
+          </ProtectedRoute>} />
+
+        </Route>
+        <Route path='/edit-profile' element={<ProtectedRoute>
+          <EditProfile />
+        </ProtectedRoute>} />
+        <Route path='/profile' element={<ProtectedRoute>
+          <UserProfile />
+        </ProtectedRoute>} />
+
+        <Route path='/dashboard/users/search' element={<ProtectedRoute>
+          <UserSearch />
+        </ProtectedRoute>} />
+        <Route
+          path="/dashboard/users/AllUsers"
+          element={
+            <ProtectedRoute>
+              <AdminUserList />
+            </ProtectedRoute>
           }
         />
-        <Route
-          path="signup"
-          element={
-            <GuestRoute>
-              <SignUp />
-            </GuestRoute>
-          }
-        />
-      </Route>
-
-      {/* -------- DASHBOARD (auth‑only) -------- */}
-      <Route
-        path="/dashboard/*"
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'advertiser', 'user']}>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Empty />} /> {/* /dashboard */}
-        <Route path="upload" element={<ProtectedRoute>
-          <UploadAd />
-        </ProtectedRoute>} />
-        <Route path="wallet" element={<ProtectedRoute>
-          <UserWallet />
-        </ProtectedRoute>} />
-        <Route path="my-ads" element={<ProtectedRoute>
-          <AdvertiserDashboard />
-        </ProtectedRoute>} />
-        <Route path="watch" element={
-          <ProtectedRoute>
-            <WatchAd  />
-          </ProtectedRoute>
-        } />
-        <Route path="history" element={
-          <ProtectedRoute>
-            <History />
-          </ProtectedRoute>
-        } />
-        {/* Add more dashboard routes as needed */}
-        <Route path="account" element={<Empty />} />
-        <Route path="contact" element={<ProtectedRoute>
-          <ContactForm />
-        </ProtectedRoute>} />
-        
-      </Route>
-      <Route path='/edit-profile' element={<ProtectedRoute>
-        <EditProfile />
-      </ProtectedRoute>} />
-      <Route path='/profile' element={<ProtectedRoute>
-        <UserProfile />
-      </ProtectedRoute>} />
-
-      <Route path='/dashboard/users/search' element={<ProtectedRoute>
-        <UserSearch />
-      </ProtectedRoute>} />
-<Route
-  path="/dashboard/users/AllUsers"
-  element={
-    <ProtectedRoute>
-      <AdminUserList />
-    </ProtectedRoute>
-  }
-/>
 
 
-      {/* -------- FALLBACKS -------- */}
-      <Route path="/unauthorized" element={<Unauthorized />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
-</>
-     );
+        {/* -------- FALLBACKS -------- */}
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </>
+  );
 }

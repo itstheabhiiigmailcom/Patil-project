@@ -1,8 +1,9 @@
-// src/components/UploadAd.jsx
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { uploadAd } from '../api/addApi';
-import { fetchUserProfile } from '../api/getprofile';
+import { fetchUserProfile } from '../api/getProfile';
+import { moderateImage } from '../store/moderateImage';
+
 export default function UploadAd() {
   const { user } = useSelector((state) => state.auth);
 
@@ -15,32 +16,49 @@ export default function UploadAd() {
     file: null,
   });
 
+  const [imagePreview, setImagePreview] = useState(null);
+  const [moderationResult, setModerationResult] = useState(null);
   const [isAdvertiser, setIsAdvertiser] = useState(false);
-  const [credits, setCredits] = useState(null); 
+  const [credits, setCredits] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [checkingModeration, setCheckingModeration] = useState(false);
 
+  // Fetch credits
+  const fetchCredits = async () => {
+    try {
+      const profile = await fetchUserProfile();
+      const newCredits = profile.credit || 0;
+      setCredits(newCredits);
+      return newCredits;
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+      setCredits(0);
+      return 0;
+    }
+  };
 
+  // Initial credit fetch
   useEffect(() => {
-    const fetchCredits = async () => {
+    const init = async () => {
       if (user?.role === 'advertiser') {
-        try {
-          const profile = await fetchUserProfile();
-          
-          setCredits(profile.credit || 0);
-        } catch (err) {
-          console.error('Error fetching profile:', err);
-          setCredits(0);
-        } finally {
-          setLoading(false);
-        }
+        await fetchCredits();
       } else {
         setCredits(0);
-        setLoading(false);
       }
+      setLoading(false);
     };
-    fetchCredits();
+    init();
   }, [user]);
 
+  // Optional: Refresh credits every 5s
+  useEffect(() => {
+    if (user?.role === 'advertiser') {
+      const intervalId = setInterval(fetchCredits, 5000);
+      return () => clearInterval(intervalId);
+    }
+  }, [user]);
+
+  // Set advertiser ID
   useEffect(() => {
     if (user?.role === 'advertiser' && user.email) {
       setForm((prev) => ({ ...prev, advertiserId: user.email }));
@@ -50,10 +68,28 @@ export default function UploadAd() {
     }
   }, [user]);
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, files } = e.target;
+
     if (name === 'file') {
-      setForm((prev) => ({ ...prev, file: files[0] }));
+      const file = files[0];
+      if (!file) return;
+
+      setImagePreview(URL.createObjectURL(file));
+      setCheckingModeration(true);
+
+      const { passed, result } = await moderateImage(file);
+      setModerationResult(result);
+
+      if (!passed) {
+        alert('⚠️ Image rejected due to inappropriate content.');
+        setForm((prev) => ({ ...prev, file: null }));
+        setImagePreview(null);
+      } else {
+        setForm((prev) => ({ ...prev, file }));
+      }
+
+      setCheckingModeration(false);
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -67,8 +103,14 @@ export default function UploadAd() {
       return;
     }
 
-    if (credits < 1000) {
-      alert('You must have at least 1000 credits to upload an ad ❌');
+    const latestCredits = await fetchCredits();
+    if (latestCredits < 1000) {
+      alert('❌ You don’t have enough credits. Please top up your wallet.');
+      return;
+    }
+
+    if (!form.file) {
+      alert('Please upload a valid image');
       return;
     }
 
@@ -83,25 +125,17 @@ export default function UploadAd() {
   };
 
   if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh] text-lg text-gray-600">
-        Please log in to upload an ad.
-      </div>
-    );
+    return <div className="text-center py-10 text-gray-500">Please log in to upload an ad.</div>;
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh] text-lg text-gray-500">
-        Checking credits...
-      </div>
-    );
+    return <div className="text-center py-10 text-gray-500">Checking credits...</div>;
   }
 
   if (credits < 1000) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh] text-yellow-600 text-center px-6 text-lg font-medium">
-        You need at least 1000 credits to upload an advertisement. Please top-up your account.
+      <div className="text-center py-10 text-yellow-600">
+        You need at least 1000 credits to upload an advertisement.
       </div>
     );
   }
@@ -173,10 +207,22 @@ export default function UploadAd() {
           />
         </div>
 
+        {checkingModeration && (
+          <p className="text-blue-600 font-medium">Moderating image, please wait...</p>
+        )}
+
+        {imagePreview && (
+          <div className="mt-4">
+            <p className="text-gray-700 font-medium mb-2">Image Preview:</p>
+            <img src={imagePreview} alt="Preview" className="w-full rounded-lg shadow" />
+          </div>
+        )}
+
         <input type="hidden" name="advertiserId" value={form.advertiserId} />
 
         <button
           type="submit"
+          disabled={checkingModeration}
           className="w-full py-3 text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-all"
         >
           Upload Ad

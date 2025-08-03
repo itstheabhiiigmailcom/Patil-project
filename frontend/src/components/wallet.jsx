@@ -2,13 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { fetchUserProfile } from '../api/getProfile';
 import { Wallet, Activity, BarChart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useCredit } from '../contaxt/Credit';
 
 export default function UserWallet() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const { credit } = useCredit(); // ✅ Get live credit
-
+  const credit = user?.credit || 0; // Default to 0 if user or credit is not available
   useEffect(() => {
     const getUser = async () => {
       const data = await fetchUserProfile();

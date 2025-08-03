@@ -17,12 +17,27 @@ const adminRoutes = require('./routes/admin.routes');
 function buildApp() {
   const app = fastify({ logger: true });
 
-  app.register(fastifyCors, {
-    origin: env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
+
+const allowedOrigins = [
+  env.FRONTEND_URL,               // if set, e.g., from .env
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175'
+].filter(Boolean); // remove undefined/null
+
+app.register(fastifyCors, {
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      cb(null, true); // allow request
+    } else {
+      cb(new Error("Not allowed by CORS"), false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+});
+
 
   app.register(fastifyHelmet);
   app.register(fastifySensible);

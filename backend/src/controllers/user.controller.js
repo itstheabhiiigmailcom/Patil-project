@@ -200,9 +200,73 @@ async function getUserProfile(req, reply) {
 }
 
 
+// Diary controller.................................................
+
+
+async function addDiaryEntry(req, reply) {
+  try {
+    const userId = req.user?.sub;
+    const { title, content, mood, tags } = req.body;
+
+    if (!content) {
+      return reply.badRequest('Content is required');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return reply.notFound('User not found');
+
+    user.diaryEntries.push({ title, content, mood, tags });
+    await user.save();
+
+    reply.code(201).send({ message: 'Diary entry added', diaryEntries: user.diaryEntries });
+  } catch (err) {
+    req.log.error(err, '[addDiaryEntry] Error');
+    reply.internalServerError('Failed to add diary entry');
+  }
+}
+
+async function getDiaryEntries(req, reply) {
+  try {
+    const userId = req.user?.sub;
+    const user = await User.findById(userId).select('diaryEntries');
+
+    if (!user) return reply.notFound('User not found');
+
+    reply.send({ diaryEntries: user.diaryEntries });
+  } catch (err) {
+    req.log.error(err, '[getDiaryEntries] Error');
+    reply.internalServerError('Could not fetch diary entries');
+  }
+}
+
+async function deleteDiaryEntry(req, reply) {
+  try {
+    const userId = req.user?.sub;
+    const entryIndex = parseInt(req.params.index, 10);
+
+    const user = await User.findById(userId);
+    if (!user) return reply.notFound('User not found');
+
+    if (entryIndex < 0 || entryIndex >= user.diaryEntries.length) {
+      return reply.badRequest('Invalid diary entry index');
+    }
+
+    user.diaryEntries.splice(entryIndex, 1);
+    await user.save();
+
+    reply.send({ message: 'Diary entry deleted', diaryEntries: user.diaryEntries });
+  } catch (err) {
+    req.log.error(err, '[deleteDiaryEntry] Error');
+    reply.internalServerError('Failed to delete diary entry');
+  }
+}
 
 
 
 
 
-module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler,updateUserProfile,getUserProfile};
+
+
+module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler,updateUserProfile,getUserProfile,
+addDiaryEntry, getDiaryEntries, deleteDiaryEntry,
+};
