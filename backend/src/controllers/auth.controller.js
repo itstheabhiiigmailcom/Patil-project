@@ -101,6 +101,7 @@ module.exports.login = async function login(request, reply) {
         name: user.name,
         email: user.email,
         role: user.role,
+        ban: user.ban || null, // <-- include ban info
       },
     });
   } catch (err) {

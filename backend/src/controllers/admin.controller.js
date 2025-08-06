@@ -9,7 +9,7 @@ async function getAllUser(req, reply) {
     const user = await User.find().select('-password');
     return reply.send({ users: user });
   } catch (err) {
-    req.log.error(err, '[getAllUser] failed to fetch users')
+    req.log.error(err, '[getAllUser] failed to fetch users');
     return reply.internalServerError('Failed to fetch users');
   }
 }
@@ -22,7 +22,9 @@ async function getUserBymail(req, reply) {
   }
 
   try {
-    const users = await User.find({ email: { $regex: email, $options: 'i' } }).select('-password');
+    const users = await User.find({
+      email: { $regex: email, $options: 'i' },
+    }).select('-password');
     reply.send(users);
   } catch (err) {
     reply.status(500).send({ message: 'Server error' });
@@ -39,7 +41,7 @@ async function updateUser(req, reply) {
   } catch (err) {
     reply.status(500).send({ message: 'Update failed' });
   }
-};
+}
 
 // Delete user
 async function deleteUser(req, reply) {
@@ -50,32 +52,83 @@ async function deleteUser(req, reply) {
   } catch (err) {
     reply.status(500).send({ message: 'Deletion failed' });
   }
-};
+}
 
 // Ban user
+// Ban user with specific from and to datetime
 async function banUser(req, reply) {
   const { id } = req.params;
-  const { days } = req.body;
+  const { banFrom, banTo } = req.body; // expecting ISO strings or Date-compatible strings
+
+  if (!banFrom || !banTo) {
+    return reply
+      .status(400)
+      .send({ message: 'banFrom and banTo are required' });
+  }
+
+  const banStart = new Date(banFrom);
+  const banEnd = new Date(banTo);
+
+  // Validate dates
+  if (isNaN(banStart.getTime()) || isNaN(banEnd.getTime())) {
+    return reply.status(400).send({ message: 'Invalid date format' });
+  }
+
+  if (banEnd <= banStart) {
+    return reply.status(400).send({ message: 'banTo must be after banFrom' });
+  }
 
   try {
-    const bannedUntil = new Date();
-    bannedUntil.setDate(bannedUntil.getDate() + days);
-
-    const user = await User.findByIdAndUpdate(id, {
-      ban: {
-        isBanned: true,
-        bannedUntil,
+    const user = await User.findByIdAndUpdate(
+      id,
+      {
+        ban: {
+          isBanned: true,
+          bannedUntil: banEnd,
+        },
       },
-    }, { new: true });
+      { new: true }
+    );
 
-    reply.send(user);
+    if (!user) {
+      return reply.status(404).send({ message: 'User not found' });
+    }
+
+    reply.send({
+      message: `User banned from ${banStart.toISOString()} to ${banEnd.toISOString()}`,
+      user,
+    });
   } catch (err) {
+    console.error('Ban error:', err);
     reply.status(500).send({ message: 'Ban failed' });
   }
-};
+}
 
+async function unbanUser(req, reply) {
+  const { id } = req.params;
 
+  try {
+    const user = await User.findByIdAndUpdate(
+      id,
+      {
+        ban: {
+          isBanned: false,
+          bannedUntil: null,
+        },
+      },
+      { new: true }
+    );
 
+    if (!user) {
+      return reply.status(404).send({ message: 'User not found' });
+    }
+
+    reply.send({ message: 'User unbanned', user });
+  } catch (err) {
+    console.error('Unban error:', err);
+    reply.status(500).send({ message: 'Unban failed' });
+  }
+}
 
 async function sendMailToUser(req, reply) {
   const { to, subject, message } = req.body;
@@ -99,29 +152,34 @@ async function sendMailToUser(req, reply) {
 async function addCredit(req, reply) {
   const { userId, amount } = req.body;
   if (!userId || !amount) {
-    return reply.status(400).send({ message: 'User ID and amount are required' });
+    return reply
+      .status(400)
+      .send({ message: 'User ID and amount are required' });
   }
   try {
-    const user = await User.findById(userId)
-    if (!user || user.role !== 'advertiser'){
+    const user = await User.findById(userId);
+    if (!user || user.role !== 'advertiser') {
       return reply.notFound('Advertiser not found');
     }
     user.credit += amount;
     await user.save();
-        reply.send({ success: true, message: 'Credit added successfully', credit: user.credit });
+    reply.send({
+      success: true,
+      message: 'Credit added successfully',
+      credit: user.credit,
+    });
   } catch (err) {
     console.error('Error adding credit:', err);
     reply.internalServerError('Failed to add credit');
   }
+}
 
-  }
-
-  async function getAllAdsAnalytics(req, reply) {
+async function getAllAdsAnalytics(req, reply) {
   try {
     // Fetch all ads with _id, description, feedbacks
     const ads = await AD.find().select('_id description feedbacks');
 
-    const adIds = ads.map(ad => ad._id);
+    const adIds = ads.map((ad) => ad._id);
 
     // 1. Views over time (grouped by date)
     const viewsOverTime = await AdViewLog.aggregate([
@@ -152,20 +210,20 @@ async function addCredit(req, reply) {
 
     // Map adId to description for lookup
     const adTitleMap = {};
-    ads.forEach(ad => {
+    ads.forEach((ad) => {
       adTitleMap[ad._id.toString()] = ad.description;
     });
 
-    const mostViewed = mostViewedRaw.map(view => ({
+    const mostViewed = mostViewedRaw.map((view) => ({
       title: adTitleMap[view._id.toString()] || 'Unknown',
       count: view.count,
     }));
 
     // 3. Feedbacks (like/dislike) from embedded arrays
-    const feedbackCounts = ads.map(ad => {
+    const feedbackCounts = ads.map((ad) => {
       const feedbacks = ad.feedbacks || [];
-      const like = feedbacks.filter(f => f.sentiment === 'like').length;
-      const dislike = feedbacks.filter(f => f.sentiment === 'dislike').length;
+      const like = feedbacks.filter((f) => f.sentiment === 'like').length;
+      const dislike = feedbacks.filter((f) => f.sentiment === 'dislike').length;
       return {
         title: ad.description,
         like,
@@ -176,12 +234,12 @@ async function addCredit(req, reply) {
     const mostLiked = [...feedbackCounts]
       .sort((a, b) => b.like - a.like)
       .slice(0, 5)
-      .map(f => ({ title: f.title, count: f.like }));
+      .map((f) => ({ title: f.title, count: f.like }));
 
     const mostDisliked = [...feedbackCounts]
       .sort((a, b) => b.dislike - a.dislike)
       .slice(0, 5)
-      .map(f => ({ title: f.title, count: f.dislike }));
+      .map((f) => ({ title: f.title, count: f.dislike }));
 
     // Send analytics
     reply.send({
@@ -196,7 +254,14 @@ async function addCredit(req, reply) {
   }
 }
 
-
-
-
-module.exports = { getAllUser, getUserBymail, updateUser, deleteUser, banUser, sendMailToUser,addCredit,getAllAdsAnalytics };
+module.exports = {
+  getAllUser,
+  getUserBymail,
+  updateUser,
+  deleteUser,
+  banUser,
+  unbanUser,
+  sendMailToUser,
+  addCredit,
+  getAllAdsAnalytics,
+};

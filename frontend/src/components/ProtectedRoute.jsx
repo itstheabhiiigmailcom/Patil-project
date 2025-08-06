@@ -4,23 +4,17 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
 import { fetchCurrentUser } from '../store/authSlice';
 
-/**
- * Protect a route. Always re‑checks the session against the server.
- *
- * @param {React.ReactNode} children      Page/component to render on success.
- * @param {string|string[]} [allowedRoles] Optional: role(s) that may enter.
- */
 export default function ProtectedRoute({ children, allowedRoles }) {
   const dispatch = useDispatch();
   const location = useLocation();
   const { user, status } = useSelector((s) => s.auth);
 
-  /* Kick /me exactly once */
+  // On mount or idle, fetch user
   useEffect(() => {
     if (status === 'idle') dispatch(fetchCurrentUser());
   }, [dispatch, status]);
 
-  /* 1️⃣  Waiting for the check */
+  // 1️⃣ Loading state
   if (status === 'loading' || status === 'idle') {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -29,22 +23,21 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     );
   }
 
-  /* 2️⃣  Not authenticated */
+  // 2️⃣ Not authenticated
   if (!user) {
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
-  /* 3️⃣  Role guard */
-if (
-  allowedRoles &&
-  (Array.isArray(allowedRoles)
-    ? !allowedRoles.includes(user.role)
-    : user.role !== allowedRoles)
-) {
-  return <Navigate to="/unauthorized" replace />;
-}
+  // 4️⃣ Role guard
+  if (
+    allowedRoles &&
+    (Array.isArray(allowedRoles)
+      ? !allowedRoles.includes(user.role)
+      : user.role !== allowedRoles)
+  ) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
-
-  /* 4️⃣  All good */
+  // 5️⃣ All good
   return children;
 }

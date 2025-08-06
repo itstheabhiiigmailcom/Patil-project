@@ -7,10 +7,10 @@ import { useSelector } from 'react-redux';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 
 export default function SignIn() {
-  const [form, setForm] = useState({ 
-    email: '', 
+  const [form, setForm] = useState({
+    email: '',
     password: '',
-    role: 'user' // default role
+    role: 'user', // default role
   });
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -22,8 +22,14 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(login(form)).unwrap();
-      navigate('/dashboard'); // go home on success
+      const result = await dispatch(login(form)).unwrap();
+      // const bannedUntil = user?.ban?.isBanned?.bannedUntil;
+
+      if (result?.ban?.isBanned) {
+        navigate('/banned');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       console.error(err);
     }

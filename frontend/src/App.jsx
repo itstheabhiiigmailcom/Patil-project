@@ -20,6 +20,7 @@ import UserSearch from './components/searchUserByEmail';
 import UserWallet from './components/wallet';
 import GlobalCreditWatcher from './components/creditPractice';
 import VerifyOtp from './pages/VerifyOtp';
+import Banned from './components/Banned';
 
 /* empty stubs – replace later */
 const Empty = () => <div />;
@@ -152,6 +153,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/banned" element={<Banned />} />
 
         {/* -------- FALLBACKS -------- */}
         <Route path="/unauthorized" element={<Unauthorized />} />
